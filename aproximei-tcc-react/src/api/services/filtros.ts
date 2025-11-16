@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "@/api/api";
 
 export interface Servico {
   id: number;
@@ -11,11 +11,11 @@ export interface Categoria {
 }
 
 export const getServicos = async (): Promise<Servico[]> => {
-  const { data } = await axios.get<Servico[]>("http://localhost:8080/filtros/servicos");
+  const { data } = await api.get<Servico[]>("/filtros/servicos");
   return data;
 };
 
 export const getCategorias = async (): Promise<Categoria[]> => {
-  const { data } = await axios.get<Categoria[]>("http://localhost:8080/filtros/categorias");
+  const { data } = await api.get<Categoria[]>("/filtros/categorias");
   return data;
 };

@@ -1,8 +1,6 @@
 // src/api/services/home.ts
 import { api } from "@/api/api";
 
-const API_BASE_URL = "http://localhost:8080";
-
 export interface ServicoResumoDTO {
     id: number;
     nome: string;
