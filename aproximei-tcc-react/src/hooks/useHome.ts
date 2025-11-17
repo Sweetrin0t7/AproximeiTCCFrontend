@@ -18,7 +18,7 @@ export function useMelhoresPrestadores() {
     return useQuery({
         queryKey: ['prestadoresMelhoresDaSemana'],
         queryFn: () => getPrestadoresMelhoresDaSemana(),
-        staleTime: 1000 * 60 * 5, 
+        staleTime: 1000 * 60 * 10, 
     });
 }
 
@@ -33,7 +33,7 @@ export const useBuscaPrestadores = (params: BuscaParams) => {
         queryKey: ["prestadores", params],
         queryFn: () => buscarPrestadores(params),
         enabled,
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 60 * 10,
     });
 };
 
@@ -44,7 +44,7 @@ export const useCategoriasMaisAcessadas = () => {
     return useQuery<CategoriaAcessada[], Error>({
         queryKey: ['topCategories'],
         queryFn: fetchCategoriasMaisAcessadas,
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 60 * 10,
     });
 };
 
@@ -55,6 +55,6 @@ export const useServicosMaisAcessados = () => {
     return useQuery<ServicoAcessado[], Error>({
         queryKey: ['topServices'],
         queryFn: fetchServicosMaisAcessados,
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 60 * 10,
     });
 };

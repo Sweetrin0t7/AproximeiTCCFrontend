@@ -14,7 +14,6 @@ const ReviewCard = ({ name, rating, category, date, comment, avatar }: ReviewCar
   return (
     <div className="flex gap-4 p-4 border border-border rounded-lg">
       <Avatar className="h-12 w-12">
-        <AvatarImage src={avatar} alt={name} />
         <AvatarFallback className="bg-aproximei-blue text-white">
           {name.charAt(0)}
         </AvatarFallback>

@@ -5,12 +5,12 @@ export const useServicos = () =>
   useQuery<Servico[], Error>({
     queryKey: ["servicos"],
     queryFn: getServicos,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
   });
 
 export const useCategorias = () =>
   useQuery<Categoria[], Error>({
     queryKey: ["categorias"],
     queryFn: getCategorias,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
   });

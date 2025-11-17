@@ -5,32 +5,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Logo from "@/components/Logo";
 import Header from "@/components/Header";
+import { useLoginCadastro } from "@/hooks/useLoginCadastro";
 
 const Login = () => {
+  const { login, loading, erro } = useLoginCadastro();
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login:", { email, senha });
+    login(email, senha);
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Show header only on desktop */}
+      
       <div className="hidden md:block">
         <Header />
       </div>
 
-      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-80px)] p-4">
+      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
         <div className="w-full max-w-md">
-          {/* Mobile Logo */}
+
           <div className="md:hidden mb-8 text-center">
             <Logo className="text-5xl" />
           </div>
 
           <div className="bg-card rounded-lg shadow-lg p-8">
-            {/* Desktop Logo */}
+            
             <div className="hidden md:block text-center mb-6">
               <Logo className="text-4xl" />
             </div>
@@ -40,6 +43,11 @@ const Login = () => {
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+
+              {erro && (
+                <p className="text-red-500 text-sm text-center">{erro}</p>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
                 <Input
@@ -64,8 +72,8 @@ const Login = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full" size="lg">
-                Entrar
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                {loading ? "Entrando..." : "Entrar"}
               </Button>
 
               <p className="text-center text-sm text-muted-foreground">
@@ -74,6 +82,7 @@ const Login = () => {
                   Recuperar
                 </Link>
               </p>
+
             </form>
           </div>
         </div>

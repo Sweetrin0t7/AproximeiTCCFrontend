@@ -5,8 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Logo from "@/components/Logo";
 import Header from "@/components/Header";
+import { useLoginCadastro } from "@/hooks/useLoginCadastro";
 
 const Cadastro = () => {
+  const { cadastrar, loading, erro } = useLoginCadastro();
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -15,25 +18,31 @@ const Cadastro = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Cadastro:", { nome, email, telefone, senha });
+
+    if (senha !== confirmarSenha) {
+      alert("As senhas não coincidem!");
+      return;
+    }
+
+    cadastrar(nome, email, telefone, senha);
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Show header only on desktop */}
+
       <div className="hidden md:block">
         <Header />
       </div>
 
-      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-80px)] p-4">
+      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
         <div className="w-full max-w-md">
-          {/* Mobile Logo */}
+
           <div className="md:hidden mb-8 text-center">
             <Logo className="text-5xl" />
           </div>
 
           <div className="bg-card rounded-lg shadow-lg p-8">
-            {/* Desktop Logo */}
+
             <div className="hidden md:block text-center mb-6">
               <Logo className="text-4xl" />
             </div>
@@ -43,6 +52,11 @@ const Cadastro = () => {
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+
+              {erro && (
+                <p className="text-red-500 text-sm text-center">{erro}</p>
+              )}
+
               <div className="space-y-2 hidden md:block">
                 <Label htmlFor="nome">Nome</Label>
                 <Input
@@ -103,8 +117,8 @@ const Cadastro = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full" size="lg">
-                Cadastrar
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                {loading ? "Cadastrando..." : "Cadastrar"}
               </Button>
 
               <p className="text-center text-sm text-muted-foreground">
@@ -113,6 +127,7 @@ const Cadastro = () => {
                   Entrar
                 </Link>
               </p>
+
             </form>
           </div>
         </div>
