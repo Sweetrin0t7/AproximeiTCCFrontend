@@ -20,6 +20,7 @@ export interface Prestador {
     latitude: number | null;
     longitude: number | null;
     distanciaKm: number | null;
+    fotoPerfilBase64: string;
     categorias: CategoriaServicoResumoDTO[];
 }
 

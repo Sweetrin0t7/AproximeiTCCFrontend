@@ -68,7 +68,6 @@ const Servicos = () => {
 
     // ... (useEffect para sincronizar a URL e handleFilterChange permanecem iguais)
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setFiltros({
             searchText: palavraParam,
             servicoId: servicoParam ? Number(servicoParam) : undefined,
@@ -160,13 +159,13 @@ const Servicos = () => {
                     {prestadores?.map((p) => (
                         <ProviderCard
                             key={p.id}
+                            id={p.id}
                             name={p.nomeUsuario}
                             rating={p.mediaNota}
                             distance={p.distanciaKm !== null ? `${p.distanciaKm.toFixed(1)} km` : "Distância Indisponível"}
                             categories={p.categorias.flatMap((c) => c.servicos.map((s) => s.nome))}
                             description={p.sobreMim}
-                            horizontal
-                        />
+                            horizontal                        />
                     ))}
                 </div>
             </div>

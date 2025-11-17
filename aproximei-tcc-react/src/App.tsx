@@ -8,6 +8,11 @@ import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Servicos from "./pages/Servicos";
 import NotFound from "./pages/NotFound";
+import Prestador from "./pages/Prestador";
+import EditarInformacoes from "./pages/EditarInformacoes";
+import EditarServicos from "./pages/EditarServicos";
+import GerarAvaliacao from "./pages/GerarAvaliacao";
+import AvaliacaoCliente from "./pages/AvaliacaoCliente";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +27,11 @@ const App = () => (
           <Route path="/entrar" element={<Login />} />
           <Route path="/cadastrar" element={<Cadastro />} />
           <Route path="/servicos" element={<Servicos />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/prestador/:id" element={<Prestador />} />
+          <Route path="/prestador/editar-informacoes" element={<EditarInformacoes />} />
+          <Route path="/prestador/editar-servicos" element={<EditarServicos />} />
+          <Route path="/prestador/gerar-avaliacao" element={<GerarAvaliacao />} />
+          <Route path="/avaliar/:id" element={<AvaliacaoCliente />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

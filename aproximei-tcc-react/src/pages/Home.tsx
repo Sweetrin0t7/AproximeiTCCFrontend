@@ -16,14 +16,13 @@ import {
     useServicosMaisAcessados,
 } from "@/hooks/useHome";
 
-// ÍCONE MOCKADO PARA TODAS AS CATEGORIAS / SERVIÇOS
+//TODO ARRUMAR ÍCONE MOCKADO PARA TODAS AS CATEGORIAS / SERVIÇOS
 import { Hammer } from "lucide-react";
 
 const Home = () => {
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState("");
 
-    // API CALLS
     const { data: topProviders, isLoading: loadingProviders } = useMelhoresPrestadores();
     const { data: topCategories, isLoading: loadingCategories } = useCategoriasMaisAcessadas();
     const { data: topServices, isLoading: loadingServices } = useServicosMaisAcessados();
@@ -55,9 +54,7 @@ const Home = () => {
 
             <div className="container mx-auto px-4 py-8 md:py-12">
 
-                {/* ============================= */}
                 {/* CATEGORIAS */}
-                {/* ============================= */}
                 <div className="mb-10">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl md:text-2xl font-bold">
@@ -86,9 +83,7 @@ const Home = () => {
                     </div>
                 </div>
 
-                {/* ============================= */}
                 {/* SERVIÇOS MAIS ACESSADOS */}
-                {/* ============================= */}
                 <div className="mb-10">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl md:text-2xl font-bold">
@@ -105,7 +100,7 @@ const Home = () => {
                                 <CategoryIcon
                                     key={service.id}
                                     label={service.nome}
-                                    Icon={Hammer} // 👈 MESMO ÍCONE MOCKADO
+                                    Icon={Hammer} 
                                 />
                             ))}
 
@@ -117,9 +112,7 @@ const Home = () => {
                     </div>
                 </div>
 
-                {/* ============================= */}
                 {/* MELHORES PRESTADORES */}
-                {/* ============================= */}
                 <div>
                     <h2 className="text-xl md:text-2xl font-bold mb-6">
                         Prestadores com as melhores avaliações da semana
@@ -131,8 +124,10 @@ const Home = () => {
                         {Array.isArray(topProviders) &&
                             topProviders.map((provider) => (
                                 <ProviderCard
+                                    id={provider.id}
                                     key={provider.id}
                                     name={provider.nomeUsuario}
+                                    image={provider.fotoPerfilBase64}                                    
                                     rating={provider.mediaNota}
                                     distance={
                                         provider.distanciaKm
