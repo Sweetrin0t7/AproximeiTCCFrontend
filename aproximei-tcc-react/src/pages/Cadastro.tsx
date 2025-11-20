@@ -8,7 +8,7 @@ import Header from "@/components/Header";
 import { useLoginCadastro } from "@/hooks/useLoginCadastro";
 
 const Cadastro = () => {
-  const { cadastrar, loading, erro } = useLoginCadastro();
+  const { cadastrar, loading, erro, setErro } = useLoginCadastro();
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -20,29 +20,22 @@ const Cadastro = () => {
     e.preventDefault();
 
     if (senha !== confirmarSenha) {
-      alert("As senhas não coincidem!");
-      return;
+      return setErro("As senhas não coincidem!");
     }
-
     cadastrar(nome, email, telefone, senha);
   };
 
   return (
     <div className="min-h-screen bg-background">
-
-      <div className="hidden md:block">
-        <Header />
-      </div>
+      <Header />
 
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
         <div className="w-full max-w-md">
-
           <div className="md:hidden mb-8 text-center">
             <Logo className="text-5xl" />
           </div>
 
           <div className="bg-card rounded-lg shadow-lg p-8">
-
             <div className="hidden md:block text-center mb-6">
               <Logo className="text-4xl" />
             </div>
@@ -52,12 +45,11 @@ const Cadastro = () => {
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-
               {erro && (
                 <p className="text-red-500 text-sm text-center">{erro}</p>
               )}
 
-              <div className="space-y-2 hidden md:block">
+              <div className="space-y-2">
                 <Label htmlFor="nome">Nome</Label>
                 <Input
                   id="nome"
@@ -117,17 +109,24 @@ const Cadastro = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={loading}
+              >
                 {loading ? "Cadastrando..." : "Cadastrar"}
               </Button>
 
               <p className="text-center text-sm text-muted-foreground">
                 Já tem uma conta?{" "}
-                <Link to="/entrar" className="text-aproximei-orange hover:underline">
+                <Link
+                  to="/entrar"
+                  className="text-aproximei-orange hover:underline"
+                >
                   Entrar
                 </Link>
               </p>
-
             </form>
           </div>
         </div>

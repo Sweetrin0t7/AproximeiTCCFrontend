@@ -6,9 +6,20 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 import ReviewCard from "@/components/ReviewCard";
 import { usePrestador } from "@/hooks/usePrestador";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const Prestador = () => {
   const navigate = useNavigate();
@@ -25,7 +36,11 @@ const Prestador = () => {
   }
 
   if (!prestador) {
-    return <div className="p-8 text-center text-lg text-red-500">Prestador não encontrado.</div>;
+    return (
+      <div className="p-8 text-center text-lg text-red-500">
+        Prestador não encontrado.
+      </div>
+    );
   }
 
   return (
@@ -53,22 +68,24 @@ const Prestador = () => {
               </Avatar>
 
               <nav className="w-full space-y-2">
-                {["informacoes", "servicos", "avaliacoes-sidebar", "fotos"].map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => setActiveSection(item)}
-                    className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
-                      activeSection === item
-                        ? "text-aproximei-blue font-medium"
-                        : "text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {item === "informacoes" && "Informações pessoais"}
-                    {item === "servicos" && "Serviços"}
-                    {item === "avaliacoes-sidebar" && "Avaliações"}
-                    {item === "fotos" && "Fotos"}
-                  </button>
-                ))}
+                {["informacoes", "servicos", "avaliacoes-sidebar", "fotos"].map(
+                  (item) => (
+                    <button
+                      key={item}
+                      onClick={() => setActiveSection(item)}
+                      className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
+                        activeSection === item
+                          ? "text-aproximei-blue font-medium"
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {item === "informacoes" && "Informações pessoais"}
+                      {item === "servicos" && "Serviços"}
+                      {item === "avaliacoes-sidebar" && "Avaliações"}
+                      {item === "fotos" && "Fotos"}
+                    </button>
+                  ),
+                )}
               </nav>
 
               <Button
@@ -87,14 +104,44 @@ const Prestador = () => {
                     Enviar mensagem
                   </Button>
                 </DialogTrigger>
-
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-center">Quase lá!</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold text-center">
+                      Quase lá!
+                    </DialogTitle>
                     <DialogDescription className="text-center">
-                      Precisamos do seu nome e seu contato para podermos personalizar sua experiência.
+                      Precisamos do seu nome e seu contato para podermos
+                      personalizar sua experiência.
                     </DialogDescription>
                   </DialogHeader>
+                  <div className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nome</Label>
+                      <Input id="name" placeholder="Seu nome completo" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Número de celular</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="(00) 00000-0000"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="notifications" />
+                      <label
+                        htmlFor="notifications"
+                        className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Aceito receber notificações de AproximEI
+                      </label>
+                    </div>
+                    <DialogClose asChild>
+                      <Button className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90">
+                        Enviar mensagem
+                      </Button>
+                    </DialogClose>
+                  </div>
                 </DialogContent>
               </Dialog>
             </div>
@@ -117,9 +164,18 @@ const Prestador = () => {
               </div>
 
               <div className="space-y-3 text-sm">
-                <p><span className="font-medium">Nome:</span> {prestador.nomeUsuario}</p>
-                <p><span className="font-medium">Endereço:</span> {prestador.endereco}</p>
-                <p><span className="font-medium">Sobre mim:</span> {prestador.sobreMim}</p>
+                <p>
+                  <span className="font-medium">Nome:</span>{" "}
+                  {prestador.nomeUsuario}
+                </p>
+                <p>
+                  <span className="font-medium">Endereço:</span>{" "}
+                  {prestador.endereco}
+                </p>
+                <p>
+                  <span className="font-medium">Sobre mim:</span>{" "}
+                  {prestador.sobreMim}
+                </p>
               </div>
             </div>
 
@@ -127,13 +183,14 @@ const Prestador = () => {
             <div className="bg-card border border-border rounded-lg p-6 mb-6">
               <h2 className="text-xl font-semibold mb-4">Serviços</h2>
 
-              <Tabs
-                value={selectedService}
-                onValueChange={setSelectedService}
-              >
+              <Tabs value={selectedService} onValueChange={setSelectedService}>
                 <TabsList className="w-full">
                   {prestador.servicos.map((s) => (
-                    <TabsTrigger key={s.id} value={String(s.id)} className="flex-1">
+                    <TabsTrigger
+                      key={s.id}
+                      value={String(s.id)}
+                      className="flex-1"
+                    >
                       {s.nome}
                     </TabsTrigger>
                   ))}
@@ -152,13 +209,15 @@ const Prestador = () => {
               <h2 className="text-xl font-semibold mb-4">Fotos</h2>
 
               <div className="grid grid-cols-3 gap-4">
-                {prestador.servicos.flatMap((s) => s.fotos).map((f) => (
-                  <img
-                    key={f.id}
-                    src={`${f.imagemBase64}`}
-                    className="w-full h-40 object-cover rounded-lg"
-                  />
-                ))}
+                {prestador.servicos
+                  .flatMap((s) => s.fotos)
+                  .map((f) => (
+                    <img
+                      key={f.id}
+                      src={`${f.imagemBase64}`}
+                      className="w-full h-40 object-cover rounded-lg"
+                    />
+                  ))}
               </div>
             </div>
 
@@ -167,7 +226,9 @@ const Prestador = () => {
               <h2 className="text-xl font-semibold mb-4">Avaliações</h2>
 
               {prestador.avaliacoes.length === 0 && (
-                <p className="text-muted-foreground">Nenhuma avaliação ainda.</p>
+                <p className="text-muted-foreground">
+                  Nenhuma avaliação ainda.
+                </p>
               )}
 
               <div className="space-y-4">
@@ -178,7 +239,8 @@ const Prestador = () => {
                     rating={a.nota}
                     comment={a.comentario}
                     date={new Date(a.data).toLocaleDateString("pt-BR")}
-                    category={""}                  />
+                    category={""}
+                  />
                 ))}
               </div>
             </div>

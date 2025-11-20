@@ -1,5 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { getServicos, getCategorias, Servico, Categoria } from "@/api/services/filtros";
+import {
+  getServicos,
+  getCategorias,
+  Servico,
+  Categoria,
+} from "@/api/services/filtros";
 
 export const useServicos = () =>
   useQuery<Servico[], Error>({
