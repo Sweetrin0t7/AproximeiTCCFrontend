@@ -1,9 +1,12 @@
 import { loginUsuario, cadastrarUsuario } from "@/api/services/loginCadastro";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 export const useLoginCadastro = () => {
   const navigate = useNavigate();
+  const { login: loginStore } = useAuth();
+
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -14,7 +17,7 @@ export const useLoginCadastro = () => {
 
       const token = await loginUsuario(email, senha);
 
-      localStorage.setItem("token", token);
+      loginStore(token);
 
       navigate("/");
     } catch (err: any) {
@@ -28,7 +31,7 @@ export const useLoginCadastro = () => {
     nome: string,
     email: string,
     telefone: string,
-    senha: string
+    senha: string,
   ) => {
     try {
       setLoading(true);
@@ -43,15 +46,11 @@ export const useLoginCadastro = () => {
 
       navigate("/entrar");
     } catch (err: any) {
-      setErro(
-        err.response?.data?.mensagem ||
-        err.response?.data ||
-        "Erro no cadastro"
-      );
+      setErro(err.response?.data?.message || "Erro no cadastro");
     } finally {
       setLoading(false);
     }
   };
 
-  return { login, cadastrar, loading, erro };
+  return { login, cadastrar, loading, erro, setErro };
 };

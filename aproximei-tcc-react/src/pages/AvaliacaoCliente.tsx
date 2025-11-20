@@ -83,7 +83,12 @@ const AvaliacaoCliente = () => {
 
             <div>
               <Label htmlFor="servico">Avaliação do Serviço:</Label>
-              <Select value={formData.servico} onValueChange={(value) => setFormData({ ...formData, servico: value })}>
+              <Select
+                value={formData.servico}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, servico: value })
+                }
+              >
                 <SelectTrigger className="mt-2">
                   <SelectValue placeholder="Selecione o serviço" />
                 </SelectTrigger>
@@ -101,7 +106,9 @@ const AvaliacaoCliente = () => {
               <Textarea
                 id="comentario"
                 value={formData.comentario}
-                onChange={(e) => setFormData({ ...formData, comentario: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, comentario: e.target.value })
+                }
                 className="mt-2 min-h-32"
                 placeholder="Adorei o serviço, nota 1000! Super recomendo!"
               />

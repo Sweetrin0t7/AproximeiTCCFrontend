@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface ProviderCardProps {
-  id: number; 
+  id: number;
   name: string;
   rating: number;
   distance: string;
@@ -27,20 +27,23 @@ const ProviderCard = ({
 }: ProviderCardProps) => {
   const navigate = useNavigate();
 
-  const renderAvatar = (size: number) => (
-    <Avatar className={`w-${size} h-${size}`}>
-      {image && <AvatarImage src={image} alt={name} />}
-      <AvatarFallback className="bg-aproximei-blue text-white">
-        {name.charAt(0).toUpperCase()}
-      </AvatarFallback>
-    </Avatar>
-  );
+  const renderAvatar = (size: "sm" | "lg") => {
+    const sizeClasses = size === "lg" ? "w-16 h-16" : "w-12 h-12";
+    return (
+      <Avatar className={sizeClasses}>
+        {image && <AvatarImage src={image} alt={name} />}
+        <AvatarFallback className="bg-aproximei-blue text-white">
+          {name.charAt(0).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+    );
+  };
 
   if (horizontal) {
     return (
       <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
         <div className="flex gap-4">
-          {renderAvatar(16)}
+          {renderAvatar("lg")}
           <div className="flex-1">
             <h3 className="font-semibold">{name}</h3>
 
@@ -51,7 +54,11 @@ const ProviderCard = ({
               <span className="text-sm">{distance}</span>
             </div>
 
-            {description && <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{description}</p>}
+            {description && (
+              <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                {description}
+              </p>
+            )}
 
             <div className="flex flex-wrap gap-2 mt-3">
               {categories.map((category, index) => (
@@ -61,7 +68,11 @@ const ProviderCard = ({
               ))}
             </div>
 
-            <Button className="mt-3 w-full" size="sm" onClick={() => navigate(`/prestador/${id}`)}>
+            <Button
+              className="mt-3 w-full"
+              size="sm"
+              onClick={() => navigate(`/prestador/${id}`)}
+            >
               Ver perfil
             </Button>
           </div>
@@ -74,7 +85,7 @@ const ProviderCard = ({
     <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
       <div className="p-4">
         <div className="flex items-start gap-3 mb-3">
-          {renderAvatar(12)}
+          {renderAvatar("sm")}
           <div className="flex-1">
             <h3 className="font-semibold">{name}</h3>
             <div className="flex items-center gap-1 mt-1">

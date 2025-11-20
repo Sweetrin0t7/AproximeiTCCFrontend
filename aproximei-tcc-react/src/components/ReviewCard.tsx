@@ -10,7 +10,14 @@ interface ReviewCardProps {
   avatar?: string;
 }
 
-const ReviewCard = ({ name, rating, category, date, comment, avatar }: ReviewCardProps) => {
+const ReviewCard = ({
+  name,
+  rating,
+  category,
+  date,
+  comment,
+  avatar,
+}: ReviewCardProps) => {
   return (
     <div className="flex gap-4 p-4 border border-border rounded-lg">
       <Avatar className="h-12 w-12">
@@ -18,10 +25,10 @@ const ReviewCard = ({ name, rating, category, date, comment, avatar }: ReviewCar
           {name.charAt(0)}
         </AvatarFallback>
       </Avatar>
-      
+
       <div className="flex-1">
         <h4 className="font-semibold text-foreground">{name}</h4>
-        
+
         <div className="flex items-center gap-2 mt-1">
           <div className="flex gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -37,7 +44,7 @@ const ReviewCard = ({ name, rating, category, date, comment, avatar }: ReviewCar
           </div>
           <span className="text-sm text-muted-foreground">• {category}</span>
         </div>
-        
+
         <p className="text-sm text-muted-foreground mt-1">Avaliado em {date}</p>
         <p className="text-sm text-foreground mt-2">{comment}</p>
       </div>

@@ -1,4 +1,10 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
 interface FiltroSelectProps<T> {
@@ -9,7 +15,13 @@ interface FiltroSelectProps<T> {
   onChange: (id?: number) => void;
 }
 
-const FiltroSelect = ({ label, value, options, placeholder, onChange }: FiltroSelectProps<number>) => (
+const FiltroSelect = ({
+  label,
+  value,
+  options,
+  placeholder,
+  onChange,
+}: FiltroSelectProps<number>) => (
   <div>
     <Label className="text-sm font-semibold mb-3 block">{label}</Label>
     <Select
