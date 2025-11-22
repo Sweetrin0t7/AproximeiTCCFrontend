@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface User {
+  id: number;
   nome: string;
   fotoPerfilBase64: string;
 }

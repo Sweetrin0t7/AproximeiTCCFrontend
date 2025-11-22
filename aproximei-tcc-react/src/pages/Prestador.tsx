@@ -20,6 +20,7 @@ import { usePrestador } from "@/hooks/usePrestador";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/AuthContext";
 
 const Prestador = () => {
   const navigate = useNavigate();
@@ -27,6 +28,8 @@ const Prestador = () => {
   const prestadorId = Number(id);
 
   const { data: prestador, isLoading } = usePrestador(prestadorId);
+
+  const { isAuthenticated } = useAuth();
 
   const [activeSection, setActiveSection] = useState("informacoes");
   const [selectedService, setSelectedService] = useState("");
@@ -88,62 +91,68 @@ const Prestador = () => {
                 )}
               </nav>
 
-              <Button
-                onClick={() => navigate("/prestador/gerar-avaliacao")}
-                variant="outline"
-                className="w-full border-aproximei-blue text-aproximei-blue hover:bg-aproximei-blue/10"
-              >
-                Pedir avaliação
-              </Button>
-
-              {/* Modal WhatsApp */}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90">
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Enviar mensagem
+              {/* Usuário logado → mostrar EDITAR + PEDIR AVALIAÇÃO */}
+              {isAuthenticated && (
+                  <Button
+                    onClick={() => navigate("/prestador/gerar-avaliacao")}
+                    variant="outline"
+                    className="w-full border-aproximei-blue text-aproximei-blue hover:bg-aproximei-blue/10"
+                  >
+                    Pedir avaliação
                   </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-center">
-                      Quase lá!
-                    </DialogTitle>
-                    <DialogDescription className="text-center">
-                      Precisamos do seu nome e seu contato para podermos
-                      personalizar sua experiência.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 mt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Nome</Label>
-                      <Input id="name" placeholder="Seu nome completo" />
+              )}
+
+              {/* Usuário NÃO logado → mostrar WhatsApp */}
+              {!isAuthenticated && (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90">
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      Enviar mensagem
+                    </Button>
+                  </DialogTrigger>
+
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl font-bold text-center">
+                        Quase lá!
+                      </DialogTitle>
+                      <DialogDescription className="text-center">
+                        Precisamos do seu nome e seu contato para podermos
+                        personalizar sua experiência.
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4 mt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Nome</Label>
+                        <Input id="name" placeholder="Seu nome completo" />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Número de celular</Label>
+                        <Input id="phone" type="tel" placeholder="(00) 00000-0000" />
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="notifications" />
+                        <label
+                          htmlFor="notifications"
+                          className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Aceito receber notificações de AproximEI
+                        </label>
+                      </div>
+
+                      <DialogClose asChild>
+                        <Button className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90">
+                          Enviar mensagem
+                        </Button>
+                      </DialogClose>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Número de celular</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="(00) 00000-0000"
-                      />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="notifications" />
-                      <label
-                        htmlFor="notifications"
-                        className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Aceito receber notificações de AproximEI
-                      </label>
-                    </div>
-                    <DialogClose asChild>
-                      <Button className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90">
-                        Enviar mensagem
-                      </Button>
-                    </DialogClose>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
           </div>
 
@@ -155,12 +164,15 @@ const Prestador = () => {
             <div className="bg-card border border-border rounded-lg p-6 mb-6">
               <div className="flex justify-between mb-4">
                 <h2 className="text-xl font-semibold">Informações pessoais</h2>
-                <button
-                  onClick={() => navigate("/prestador/editar-informacoes")}
-                  className="text-aproximei-blue hover:text-aproximei-blue/80"
-                >
-                  <Pencil className="h-5 w-5" />
-                </button>
+
+                {isAuthenticated && (
+                  <button
+                    onClick={() => navigate("/prestador/editar-informacoes")}
+                    className="text-aproximei-blue hover:text-aproximei-blue/80"
+                  >
+                    <Pencil className="h-5 w-5" />
+                  </button>
+                )}
               </div>
 
               <div className="space-y-3 text-sm">
@@ -181,8 +193,17 @@ const Prestador = () => {
 
             {/* Serviços */}
             <div className="bg-card border border-border rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Serviços</h2>
-
+              <div className="flex justify-between mb-4">
+                <h2 className="text-xl font-semibold mb-4">Serviços</h2>
+                {isAuthenticated && (
+                    <button
+                      onClick={() => navigate("/prestador/editar-servicos")}
+                      className="text-aproximei-blue hover:text-aproximei-blue/80"
+                    >
+                      <Pencil className="h-5 w-5" />
+                    </button>
+                  )}
+              </div>
               <Tabs value={selectedService} onValueChange={setSelectedService}>
                 <TabsList className="w-full">
                   {prestador.servicos.map((s) => (
@@ -247,9 +268,7 @@ const Prestador = () => {
           </div>
 
           {/* Sidebar direita — filtros (mantive igual por enquanto) */}
-          <div className="lg:col-span-3">
-            {/* ... filtros permanecem iguais */}
-          </div>
+          <div className="lg:col-span-3">{/* ... filtros permanecem iguais */}</div>
         </div>
       </div>
     </div>
