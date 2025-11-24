@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface User {
+  idUsuario: number;
+  idPrestador: number;
   nome: string;
   fotoPerfilBase64: string;
 }
@@ -18,12 +20,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token"),
+    localStorage.getItem("token")
   );
+
   const [user, setUser] = useState<User | null>(
     localStorage.getItem("user")
       ? JSON.parse(localStorage.getItem("user")!)
-      : null,
+      : null
   );
 
   const isAuthenticated = !!token;
@@ -48,6 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
+
     if (storedToken) setToken(storedToken);
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);

@@ -1,5 +1,5 @@
 // src/pages/prestador/Prestador.tsx
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, MessageCircle, Pencil } from "lucide-react";
 import Header from "@/components/Header";
@@ -15,6 +15,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+
 import ReviewCard from "@/components/ReviewCard";
 import { usePrestador } from "@/hooks/usePrestador";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,8 +29,21 @@ const Prestador = () => {
 
   const { data: prestador, isLoading } = usePrestador(prestadorId);
 
-  const [activeSection, setActiveSection] = useState("informacoes");
   const [selectedService, setSelectedService] = useState("");
+
+  const refInfo = useRef<HTMLDivElement>(null);
+  const refServicos = useRef<HTMLDivElement>(null);
+  const refFotos = useRef<HTMLDivElement>(null);
+  const refAvaliacoes = useRef<HTMLDivElement>(null);
+
+  const handleScrollTo = (ref: React.RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const token = localStorage.getItem("token");
+  const decoded = token ? JSON.parse(atob(token.split(".")[1])) : null;
+  const prestadorLogadoId = decoded?.idPrestador ?? null;
+  const isOwner = prestadorLogadoId === prestadorId;
 
   if (isLoading) {
     return <div className="p-8 text-center text-lg">Carregando...</div>;
@@ -57,7 +71,7 @@ const Prestador = () => {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Sidebar */}
+          {/* MENU LATERAL */}
           <div className="lg:col-span-3">
             <div className="flex flex-col items-center gap-6">
               <Avatar className="h-40 w-40">
@@ -68,99 +82,119 @@ const Prestador = () => {
               </Avatar>
 
               <nav className="w-full space-y-2">
-                {["informacoes", "servicos", "avaliacoes-sidebar", "fotos"].map(
-                  (item) => (
-                    <button
-                      key={item}
-                      onClick={() => setActiveSection(item)}
-                      className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
-                        activeSection === item
-                          ? "text-aproximei-blue font-medium"
-                          : "text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {item === "informacoes" && "Informações pessoais"}
-                      {item === "servicos" && "Serviços"}
-                      {item === "avaliacoes-sidebar" && "Avaliações"}
-                      {item === "fotos" && "Fotos"}
-                    </button>
-                  ),
-                )}
+                <button
+                  onClick={() => handleScrollTo(refInfo)}
+                  className="w-full text-left px-4 py-2 rounded-md hover:bg-muted"
+                >
+                  Informações pessoais
+                </button>
+
+                <button
+                  onClick={() => handleScrollTo(refServicos)}
+                  className="w-full text-left px-4 py-2 rounded-md hover:bg-muted"
+                >
+                  Serviços
+                </button>
+
+                <button
+                  onClick={() => handleScrollTo(refFotos)}
+                  className="w-full text-left px-4 py-2 rounded-md hover:bg-muted"
+                >
+                  Fotos
+                </button>
+
+                <button
+                  onClick={() => handleScrollTo(refAvaliacoes)}
+                  className="w-full text-left px-4 py-2 rounded-md hover:bg-muted"
+                >
+                  Avaliações
+                </button>
               </nav>
 
-              <Button
-                onClick={() => navigate("/prestador/gerar-avaliacao")}
-                variant="outline"
-                className="w-full border-aproximei-blue text-aproximei-blue hover:bg-aproximei-blue/10"
-              >
-                Pedir avaliação
-              </Button>
-
-              {/* Modal WhatsApp */}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90">
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Enviar mensagem
+              {!isOwner && (
+                <>
+                  <Button
+                    onClick={() => navigate("/prestador/gerar-avaliacao")}
+                    variant="outline"
+                    className="w-full border-aproximei-blue text-aproximei-blue hover:bg-aproximei-blue/10"
+                  >
+                    Pedir avaliação
                   </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-center">
-                      Quase lá!
-                    </DialogTitle>
-                    <DialogDescription className="text-center">
-                      Precisamos do seu nome e seu contato para podermos
-                      personalizar sua experiência.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 mt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Nome</Label>
-                      <Input id="name" placeholder="Seu nome completo" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Número de celular</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="(00) 00000-0000"
-                      />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="notifications" />
-                      <label
-                        htmlFor="notifications"
-                        className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Aceito receber notificações de AproximEI
-                      </label>
-                    </div>
-                    <DialogClose asChild>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
                       <Button className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90">
+                        <MessageCircle className="mr-2 h-4 w-4" />
                         Enviar mensagem
                       </Button>
-                    </DialogClose>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold text-center">
+                          Quase lá!
+                        </DialogTitle>
+                        <DialogDescription className="text-center">
+                          Informe seu nome e contato.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <div className="space-y-4 mt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="name">Nome</Label>
+                          <Input id="name" placeholder="Seu nome completo" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone">Número de celular</Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            placeholder="(00) 00000-0000"
+                          />
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="notifications" />
+                          <label
+                            htmlFor="notifications"
+                            className="text-sm text-muted-foreground"
+                          >
+                            Aceito receber notificações
+                          </label>
+                        </div>
+
+                        <DialogClose asChild>
+                          <Button className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90">
+                            Enviar
+                          </Button>
+                        </DialogClose>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Conteúdo principal */}
+          {/* CONTEÚDO PRINCIPAL */}
           <div className="lg:col-span-6">
             <h1 className="text-3xl font-bold mb-6">Perfil do prestador</h1>
 
-            {/* Informações pessoais */}
-            <div className="bg-card border border-border rounded-lg p-6 mb-6">
+            {/* INFORMAÇÕES */}
+            <div
+              ref={refInfo}
+              className="bg-card border rounded-lg p-6 mb-6 scroll-mt-24"
+            >
               <div className="flex justify-between mb-4">
                 <h2 className="text-xl font-semibold">Informações pessoais</h2>
-                <button
-                  onClick={() => navigate("/prestador/editar-informacoes")}
-                  className="text-aproximei-blue hover:text-aproximei-blue/80"
-                >
-                  <Pencil className="h-5 w-5" />
-                </button>
+
+                {isOwner && (
+                  <button
+                    onClick={() => navigate("/prestador/editar-informacoes")}
+                    className="text-aproximei-blue hover:text-aproximei-blue/80"
+                  >
+                    <Pencil className="h-5 w-5" />
+                  </button>
+                )}
               </div>
 
               <div className="space-y-3 text-sm">
@@ -179,12 +213,26 @@ const Prestador = () => {
               </div>
             </div>
 
-            {/* Serviços */}
-            <div className="bg-card border border-border rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Serviços</h2>
+            {/* SERVIÇOS */}
+            <div
+              ref={refServicos}
+              className="bg-card border rounded-lg p-6 mb-6 scroll-mt-24"
+            >
+              <div className="flex justify-between">
+                <h2 className="text-xl font-semibold mb-4">Serviços</h2>
+
+                {isOwner && (
+                  <button
+                    onClick={() => navigate("/prestador/editar-servicos")}
+                    className="text-aproximei-blue hover:text-aproximei-blue/80"
+                  >
+                    <Pencil className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
 
               <Tabs value={selectedService} onValueChange={setSelectedService}>
-                <TabsList className="w-full">
+                <TabsList className="w-full flex flex-wrap">
                   {prestador.servicos.map((s) => (
                     <TabsTrigger
                       key={s.id}
@@ -204,9 +252,23 @@ const Prestador = () => {
               </Tabs>
             </div>
 
-            {/* Fotos */}
-            <div className="bg-card border border-border rounded-lg p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4">Fotos</h2>
+            {/* FOTOS */}
+            <div
+              ref={refFotos}
+              className="bg-card border rounded-lg p-6 mb-6 scroll-mt-24"
+            >
+              <div className="flex justify-between">
+                <h2 className="text-xl font-semibold mb-4">Fotos</h2>
+
+                {isOwner && (
+                  <button
+                    onClick={() => navigate("/prestador/editar-servicos")}
+                    className="text-aproximei-blue hover:text-aproximei-blue/80"
+                  >
+                    <Pencil className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
 
               <div className="grid grid-cols-3 gap-4">
                 {prestador.servicos
@@ -221,8 +283,8 @@ const Prestador = () => {
               </div>
             </div>
 
-            {/* Avaliações */}
-            <div className="bg-card border border-border rounded-lg p-6">
+            {/* AVALIAÇÕES */}
+            <div ref={refAvaliacoes} className="bg-card border rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4">Avaliações</h2>
 
               {prestador.avaliacoes.length === 0 && (
@@ -239,16 +301,11 @@ const Prestador = () => {
                     rating={a.nota}
                     comment={a.comentario}
                     date={new Date(a.data).toLocaleDateString("pt-BR")}
-                    category={""}
+                    category=""
                   />
                 ))}
               </div>
             </div>
-          </div>
-
-          {/* Sidebar direita — filtros (mantive igual por enquanto) */}
-          <div className="lg:col-span-3">
-            {/* ... filtros permanecem iguais */}
           </div>
         </div>
       </div>

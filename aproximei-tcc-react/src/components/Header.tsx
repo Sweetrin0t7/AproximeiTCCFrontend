@@ -1,11 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
@@ -18,9 +14,7 @@ const Header = () => {
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
-        
         <div className="flex items-center justify-between">
-
           {/* LOGO */}
           <Link to="/" className="flex items-center gap-2">
             <span className="text-2xl md:text-3xl font-bold">
@@ -73,12 +67,26 @@ const Header = () => {
 
             {isAuthenticated && (
               <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10 border border-border">
-                    <AvatarImage src={user?.fotoPerfilBase64} alt={user?.nome || "Usuário"} />
+                <Link
+                  to={`/prestador/${user?.idPrestador}`}
+                  className="flex items-center"
+                >
+                  <Avatar className="h-10 w-10 border border-border cursor-pointer hover:opacity-80 transition">
+                    <AvatarImage
+                      src={user?.fotoPerfilBase64}
+                      alt={user?.nome || "Prestador"}
+                    />
                     <AvatarFallback className="bg-aproximei-blue text-white text-base">
-                      {user?.nome?.substring(0, 2).toUpperCase() || "US"} 
+                      {user?.nome?.substring(0, 2).toUpperCase() || "US"}
                     </AvatarFallback>
                   </Avatar>
+
+                  {/* Nome ao lado da foto */}
+                  <span className="ml-2 font-medium hidden md:block">
+                    {user?.nome}
+                  </span>
+                </Link>
+
                 <Button variant="outline" onClick={logout}>
                   Sair
                 </Button>
@@ -98,7 +106,6 @@ const Header = () => {
               {/* MOBILE MENU CONTENT */}
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <nav className="flex flex-col gap-6 mt-8">
-
                   <Link
                     to="/"
                     className={`text-base font-medium transition-colors hover:text-primary ${
@@ -138,32 +145,36 @@ const Header = () => {
                   )}
 
                   {isAuthenticated && (
-                    <div className="flex flex-col gap-3 mt-6 pt-6 border-t border-border">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10 border border-border">
-                          <AvatarImage src={user?.fotoPerfilBase64} alt={user?.nome || "Usuário"} />
+                    <div className="flex items-center gap-3">
+                      <Link
+                        to={`/prestador/${user?.idPrestador}`}
+                        className="flex items-center gap-3"
+                      >
+                        <Avatar className="h-10 w-10 border border-border cursor-pointer">
+                          <AvatarImage
+                            src={user?.fotoPerfilBase64}
+                            alt={user?.nome || "Prestador"}
+                          />
                           <AvatarFallback className="bg-aproximei-blue text-white text-base">
-                            {user?.nome?.substring(0, 2).toUpperCase() || "US"} 
+                            {user?.nome?.substring(0, 2).toUpperCase() || "US"}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-base font-medium">
-                          Usuário
-                        </span>
-                      </div>
 
-                      <Button onClick={logout}>
+                        <span className="font-medium text-sm">
+                          {user?.nome || user?.nome}
+                        </span>
+                      </Link>
+
+                      <Button variant="outline" onClick={logout}>
                         Sair
                       </Button>
                     </div>
                   )}
-
                 </nav>
               </SheetContent>
             </Sheet>
           </div>
-
         </div>
-
       </div>
     </header>
   );
