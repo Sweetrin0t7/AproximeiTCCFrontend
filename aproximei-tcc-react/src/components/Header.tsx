@@ -44,8 +44,10 @@ const Header = () => {
             </Link>
 
             <Link
-              to="#"
-              className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+              to="/sobre-nos"
+              className={`text-base font-medium transition-colors hover:text-primary ${
+                isActive("/sobre-nos") ? "text-primary" : "text-foreground"
+              }`}
             >
               Sobre nós
             </Link>
@@ -125,8 +127,12 @@ const Header = () => {
                   </Link>
 
                   <Link
-                    to="#"
-                    className="text-base font-medium text-foreground transition-colors hover:text-primary"
+                    to="/sobre-nos"
+                    className={`text-base font-medium transition-colors hover:text-primary ${
+                      isActive("/sobre-nos")
+                        ? "text-primary"
+                        : "text-foreground"
+                    }`}
                   >
                     Sobre nós
                   </Link>
