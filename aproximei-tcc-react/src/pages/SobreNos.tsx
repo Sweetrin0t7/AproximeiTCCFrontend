@@ -134,20 +134,31 @@ const SobreNos = () => {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold mb-3">Projeto Acadêmico</h2>
+
                   <p className="text-muted-foreground leading-relaxed mb-4">
                     O APROXIMEI foi desenvolvido como Trabalho de Conclusão de
                     Curso (TCC) por{" "}
                     <span className="font-semibold text-foreground">
                       Renata Oliveira Schafer
                     </span>
-                    , estudante do Instituto Federal Sul-rio-grandense (IFSul) -
+                    , estudante do Instituto Federal Sul-rio-grandense (IFSul) –
                     Campus Charqueadas.
                   </p>
+
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    A orientação foi realizada pelo professor{" "}
+                    <span className="font-semibold text-foreground">
+                      Gildemberg Alves dos Santos - Master of Science in
+                      Business Administration
+                    </span>
+                    .
+                  </p>
+
                   <p className="text-muted-foreground leading-relaxed">
                     Este projeto representa a aplicação prática de conhecimentos
-                    adquiridos ao longo do curso, combinando tecnologia, design
-                    e empreendedorismo para criar uma solução que impacta
-                    positivamente a comunidade local e os microempreendedores.
+                    adquiridos ao longo do curso, unindo tecnologia, design e
+                    visão empreendedora para entregar uma solução que beneficia
+                    microempreendedores e fortalece a comunidade local.
                   </p>
                 </div>
               </div>
