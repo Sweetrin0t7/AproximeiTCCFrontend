@@ -8,7 +8,7 @@ interface TokenPayload {
   idUsuario: number;
   idPrestador: number | null;
   nome: string;
-  fotoPerfilBase64: string | null;
+  fotoPerfil: string | null;
 }
 
 export const useLoginCadastro = () => {
@@ -30,10 +30,10 @@ export const useLoginCadastro = () => {
       const decoded: TokenPayload = jwtDecode(token);
 
       const userObj = {
-        idUsuario: decoded.idUsuario,
+        id: decoded.idUsuario,
         idPrestador: decoded.idPrestador,
         nome: decoded.nome,
-        fotoPerfilBase64: decoded.fotoPerfilBase64,
+        fotoPerfil: decoded.fotoPerfil,
       };
 
       loginStoreUser(userObj);

@@ -20,7 +20,7 @@ export interface Prestador {
   latitude: number | null;
   longitude: number | null;
   distanciaKm: number | null;
-  fotoPerfilBase64: string;
+  fotoPerfil: string;
   categorias: CategoriaServicoResumoDTO[];
 }
 
@@ -72,20 +72,20 @@ export const fetchServicosMaisAcessados = async (): Promise<
 };
 
 export const buscarPrestadores = async (
-  params: BuscarPrestadoresParams,
+  params: BuscarPrestadoresParams
 ): Promise<Prestador[]> => {
   const { data } = await api.get<Prestador[]>("/busca", { params });
   return data;
 };
 
 export async function getPrestadoresMelhoresDaSemana(
-  size: number = 6,
+  size: number = 6
 ): Promise<Prestador[]> {
   const { data } = await api.get<Prestador[]>(
     "/home/prestadores/melhores-da-semana",
     {
       params: { size },
-    },
+    }
   );
   return data;
 }

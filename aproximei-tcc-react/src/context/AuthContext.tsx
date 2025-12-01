@@ -1,10 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface User {
-  idUsuario: number;
+  id: number;
   idPrestador: number;
   nome: string;
-  fotoPerfilBase64: string;
 }
 
 interface AuthContextType {

@@ -4,12 +4,15 @@ import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { usePrestador } from "@/hooks/usePrestador";
 
 const Header = () => {
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
 
   const { user, isAuthenticated, logout } = useAuth();
+
+  const { data: prestador } = usePrestador(user?.idPrestador);
 
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50">
@@ -74,13 +77,13 @@ const Header = () => {
                   className="flex items-center"
                 >
                   <Avatar className="h-10 w-10 border border-border cursor-pointer hover:opacity-80 transition">
-                    <AvatarImage
-                      src={user?.fotoPerfilBase64}
-                      alt={user?.nome || "Prestador"}
-                    />
-                    <AvatarFallback className="bg-aproximei-blue text-white text-base">
-                      {user?.nome?.substring(0, 2).toUpperCase() || "US"}
-                    </AvatarFallback>
+                    {prestador?.fotoPerfil ? (
+                      <AvatarImage src={prestador.fotoPerfil} />
+                    ) : (
+                      <AvatarFallback className="bg-aproximei-blue text-white text-base">
+                        {user?.nome?.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    )}
                   </Avatar>
 
                   {/* Nome ao lado da foto */}
@@ -157,13 +160,13 @@ const Header = () => {
                         className="flex items-center gap-3"
                       >
                         <Avatar className="h-10 w-10 border border-border cursor-pointer">
-                          <AvatarImage
-                            src={user?.fotoPerfilBase64}
-                            alt={user?.nome || "Prestador"}
-                          />
-                          <AvatarFallback className="bg-aproximei-blue text-white text-base">
-                            {user?.nome?.substring(0, 2).toUpperCase() || "US"}
-                          </AvatarFallback>
+                          {prestador?.fotoPerfil ? (
+                            <AvatarImage src={prestador.fotoPerfil} />
+                          ) : (
+                            <AvatarFallback className="bg-aproximei-blue text-white text-base">
+                              {user?.nome?.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          )}
                         </Avatar>
 
                         <span className="font-medium text-sm">
