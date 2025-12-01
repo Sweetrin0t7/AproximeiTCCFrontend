@@ -15,6 +15,7 @@ import GerarAvaliacao from "./pages/GerarAvaliacao";
 import AvaliacaoCliente from "./pages/AvaliacaoCliente";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
+import SobreNos from "./pages/SobreNos";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/cadastrar" element={<Cadastro />} />
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/prestador/:id" element={<Prestador />} />
+            <Route path="/sobre-nos" element={<SobreNos />} />
 
             {/* === ROTAS PROTEGIDAS === */}
             <Route

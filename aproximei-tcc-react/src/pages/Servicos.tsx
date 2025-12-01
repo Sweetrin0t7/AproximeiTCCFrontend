@@ -1,15 +1,11 @@
-// Componente Servicos.tsx refatorado
-
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import ProviderCard from "@/components/ProviderCard";
-// IMPORTAÇÃO DO NOVO COMPONENTE
 import SearchHero from "@/components/SearchHero";
 import { useServicos, useCategorias } from "@/hooks/useFiltros";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-// ... outras importações
 import FiltroSelect from "@/components/Filtro";
 import { useBuscaPrestadores } from "@/hooks/useHome";
 
@@ -20,7 +16,6 @@ const Servicos = () => {
   const categoriaParam = searchParams.get("categoriaId");
   const avaliacaoParam = searchParams.get("avaliacaoMin");
 
-  // ... (restante dos estados e hooks, não alterados)
   const [filtros, setFiltros] = useState({
     searchText: palavraParam,
     servicoId: servicoParam ? Number(servicoParam) : undefined,
@@ -35,9 +30,29 @@ const Servicos = () => {
     longitude: number;
   } | null>(null);
 
-  // ... (useEffect para geolocalização e hooks de dados permanecem iguais)
   useEffect(() => {
-    // ... lógica de geolocalização
+    if (!("geolocation" in navigator)) {
+      console.warn("Geolocalização não disponível neste navegador.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      (error) => {
+        console.warn("Erro ao obter localização:", error.message);
+        setLocation(null);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 1000 * 60 * 5,
+      }
+    );
   }, []);
 
   const { data: servicos } = useServicos();
@@ -59,7 +74,6 @@ const Servicos = () => {
   });
 
   const handleSearch = () => {
-    // Atualiza os search params com os filtros atuais
     setSearchParams({
       ...(filtros.searchText.trim() && { palavra: filtros.searchText.trim() }),
       ...(filtros.servicoId && { servicoId: String(filtros.servicoId) }),
@@ -70,13 +84,11 @@ const Servicos = () => {
     });
   };
 
-  // Função auxiliar para atualizar o texto de busca no estado
   const handleSearchTextChange = (text: string) => {
     setFiltros({ ...filtros, searchText: text });
   };
 
-  // ... (useEffect para sincronizar a URL e handleFilterChange permanecem iguais)
-  useEffect(() => {
+useEffect(() => {
     setFiltros({
       searchText: palavraParam,
       servicoId: servicoParam ? Number(servicoParam) : undefined,
@@ -87,7 +99,7 @@ const Servicos = () => {
 
   const handleFilterChange = (
     key: keyof typeof filtros,
-    value: number | undefined,
+    value: number | undefined
   ) => {
     setFiltros((prev) => ({ ...prev, [key]: value }));
   };
@@ -187,7 +199,7 @@ const Servicos = () => {
                   : "Distância Indisponível"
               }
               categories={p.categorias.flatMap((c) =>
-                c.servicos.map((s) => s.nome),
+                c.servicos.map((s) => s.nome)
               )}
               description={p.sobreMim}
               horizontal

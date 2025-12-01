@@ -18,7 +18,9 @@ export interface ServicoDTO {
   id: number;
   nome: string;
   descricao: string;
-  fotos: FotoDTO[];
+  categoria: string;
+  tipoServico: string;
+  //fotos: FotoDTO[];
 }
 
 export interface PrestadorDTO {
@@ -31,7 +33,7 @@ export interface PrestadorDTO {
   latitude: number;
   longitude: number;
 
-  fotoPerfilBase64: string;
+  fotoPerfil: string | null;
 
   distanciaKm: number;
   maxDistance: number;
@@ -44,4 +46,20 @@ export interface PrestadorDTO {
 export async function getPrestador(id: number): Promise<PrestadorDTO> {
   const response = await api.get(`/prestadores/${id}`);
   return response.data;
+}
+
+export async function updateFotoPerfil(
+  idPrestador: number,
+  file: File
+): Promise<void> {
+  const formData = new FormData();
+  formData.append("foto", file);
+
+  await api.put(`/prestadores/${idPrestador}/foto-perfil`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+}
+
+export async function deleteFotoPerfil(idPrestador: number): Promise<void> {
+  await api.delete(`/prestadores/${idPrestador}/foto-perfil`);
 }

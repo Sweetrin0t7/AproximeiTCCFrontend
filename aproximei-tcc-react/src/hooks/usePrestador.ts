@@ -1,6 +1,11 @@
 // src/hooks/usePrestador.ts
-import { useQuery } from "@tanstack/react-query";
-import { getPrestador, PrestadorDTO } from "@/api/services/prestador";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  getPrestador,
+  updateFotoPerfil,
+  deleteFotoPerfil,
+  PrestadorDTO,
+} from "@/api/services/prestador";
 
 export function usePrestador(id: number) {
   return useQuery<PrestadorDTO>({
@@ -8,4 +13,32 @@ export function usePrestador(id: number) {
     queryFn: () => getPrestador(id),
     enabled: !!id,
   });
+}
+
+export function useUpdateFotoPerfil(idPrestador: number) {
+  const qc = useQueryClient();
+
+  const upload = useMutation({
+    mutationFn: (file: File) => updateFotoPerfil(idPrestador, file),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["prestador", idPrestador] });
+    },
+    onError: (error: any) => {
+      if (error?.response?.status === 413) {
+        throw new Error(
+          "A imagem é muito grande. Tamanho máximo permitido é 2MB."
+        );
+      }
+      throw new Error("Erro ao enviar a imagem.");
+    },
+  });
+
+  const remove = useMutation({
+    mutationFn: () => deleteFotoPerfil(idPrestador),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["prestador", idPrestador] });
+    },
+  });
+
+  return { upload, remove };
 }

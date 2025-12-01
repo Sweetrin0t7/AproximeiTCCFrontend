@@ -126,7 +126,7 @@ const Home = () => {
                   id={provider.id}
                   key={provider.id}
                   name={provider.nomeUsuario}
-                  image={provider.fotoPerfilBase64}
+                  image={provider.fotoPerfil}
                   rating={provider.mediaNota}
                   distance={
                     provider.distanciaKm
@@ -134,7 +134,7 @@ const Home = () => {
                       : "Distância indisponível"
                   }
                   categories={(provider.categorias || []).flatMap((c) =>
-                    (c.servicos || []).map((s) => s.nome),
+                    (c.servicos || []).map((s) => s.nome)
                   )}
                   description={provider.sobreMim}
                 />
