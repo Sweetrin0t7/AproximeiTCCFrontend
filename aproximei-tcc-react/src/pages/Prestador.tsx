@@ -21,6 +21,7 @@ import { usePrestador, useUpdateFotoPerfil } from "@/hooks/usePrestador";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/AuthContext";
 
 const Prestador = () => {
   const navigate = useNavigate();
@@ -168,6 +169,7 @@ const Prestador = () => {
                   Avaliações
                 </button>
               </nav>
+
 
               {/* AÇÕES PARA USUÁRIOS QUE NÃO SÃO O DONO */}
               {!isOwner && (
