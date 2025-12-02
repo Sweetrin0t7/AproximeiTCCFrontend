@@ -2,14 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import {
   buscarPrestadores,
   getPrestadoresMelhoresDaSemana,
-  fetchCategoriasMaisAcessadas, // Importando a função de categorias
-  fetchServicosMaisAcessados, // Importando a função de serviços
+  fetchCategoriasMaisAcessadas, 
+  fetchServicosMaisAcessados, 
   Prestador,
   BuscaParams,
   CategoriaAcessada,
-  ServicoAcessado, // Importando o tipo de serviço
+  ServicoAcessado, 
 } from "@/api/services/home";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 /**
  * Hook para buscar a lista de prestadores mais bem avaliados para a página Home.
@@ -27,31 +27,39 @@ export function useMelhoresPrestadores() {
  * Hook para realizar a busca de prestadores com base em diversos parâmetros.
  */
 export const useBuscaPrestadores = (params: BuscaParams) => {
-  // Só habilita a query se houver pelo menos um parâmetro relevante
-  const enabled =
-    !!params.palavra ||
-    !!params.servicoId ||
-    !!params.categoriaId ||
-    !!params.avaliacaoMin ||
-    (!!params.latitude && !!params.longitude);
+  const [debouncedParams, setDebouncedParams] = useState(params);
 
-  // Memoriza os parâmetros para criar um queryKey estável
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedParams(params);
+    }, 2000);
+
+    return () => clearTimeout(handler);
+  }, [params]);
+
+  const enabled =
+    !!debouncedParams.palavra ||
+    !!debouncedParams.servicoId ||
+    !!debouncedParams.categoriaId ||
+    !!debouncedParams.avaliacaoMin ||
+    (!!debouncedParams.latitude && !!debouncedParams.longitude);
+
   const stableParams = useMemo(
     () => ({
-      palavra: params.palavra,
-      servicoId: params.servicoId,
-      categoriaId: params.categoriaId,
-      avaliacaoMin: params.avaliacaoMin,
-      latitude: params.latitude,
-      longitude: params.longitude,
+      palavra: debouncedParams.palavra,
+      servicoId: debouncedParams.servicoId,
+      categoriaId: debouncedParams.categoriaId,
+      avaliacaoMin: debouncedParams.avaliacaoMin,
+      latitude: debouncedParams.latitude,
+      longitude: debouncedParams.longitude,
     }),
     [
-      params.palavra,
-      params.servicoId,
-      params.categoriaId,
-      params.avaliacaoMin,
-      params.latitude,
-      params.longitude,
+      debouncedParams.palavra,
+      debouncedParams.servicoId,
+      debouncedParams.categoriaId,
+      debouncedParams.avaliacaoMin,
+      debouncedParams.latitude,
+      debouncedParams.longitude,
     ]
   );
 
@@ -59,9 +67,10 @@ export const useBuscaPrestadores = (params: BuscaParams) => {
     queryKey: ["prestadores", stableParams],
     queryFn: () => buscarPrestadores(stableParams),
     enabled,
-    staleTime: 1000 * 60 * 10, 
+    staleTime: 1000 * 60 * 10,
   });
 };
+
 
 /**
  * Hook para buscar a lista de categorias mais acessadas para a página Home.

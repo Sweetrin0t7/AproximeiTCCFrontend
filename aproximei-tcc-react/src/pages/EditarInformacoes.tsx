@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,26 +15,116 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { usePrestador, useUpdatePrestador } from "@/hooks/usePrestador";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/components/ui/use-toast";
+
 const EditarInformacoes = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const prestadorId = user?.idPrestador;
+
+  if (!prestadorId) return <p>Carregando...</p>;
+
+  const { data, isLoading } = usePrestador(prestadorId);
+  const update = useUpdatePrestador(prestadorId);
+
   const [formData, setFormData] = useState({
-    nome: "Diego Brandão",
-    dataNascimento: "06/05/2002",
-    sexo: "masculino",
-    email: "Diegobrandao@gmail.com",
-    telefone: "(51) 9 9785-7823",
-    sobreMim: "Sou pedreiro com experiência e dedicação em cada trabalho que realizo. Prezo pela qualidade, pontualidade e respeito com o cliente. Faço desde pequenos reparos até obras maiores, sempre com responsabilidade e atenção aos detalhes. Meu compromisso é entregar um serviço bem feito, seguro e do jeito que você precisa.",
-    cep: "00234-567",
-    rua: "Rua das Flores",
-    numero: "123",
-    cidade: "São Paulo",
-    estado: "SP",
+    nome: "",
+    dataNascimento: "",
+    sexo: "",
+    email: "",
+    telefone: "",
+    sobreMim: "",
+    cep: "",
+    rua: "",
+    numero: "",
+    cidade: "",
+    estado: "",
+    latitude: undefined as number | undefined,
+    longitude: undefined as number | undefined,
   });
+
+  useEffect(() => {
+    if (data) {
+      const dataNascimentoFormatada = data.dataNascimento
+        ? new Date(data.dataNascimento).toISOString().split("T")[0]
+        : "";
+      setFormData({
+        nome: data.nomeUsuario,
+        dataNascimento: dataNascimentoFormatada,
+        sexo: data.sexo,
+        email: data.email,
+        telefone: data.telefone,
+        sobreMim: data.sobreMim,
+        cep: data.cep,
+        rua: data.rua,
+        numero: data.numero,
+        cidade: data.cidade,
+        estado: data.estado,
+        latitude: data.latitude ?? undefined,
+        longitude: data.longitude ?? undefined,
+      });
+    }
+  }, [data]);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        setFormData((old) => ({
+          ...old,
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        })),
+      () => console.log("Usuário não deu permissão")
+    );
+  }, []);
+
+  const handleSave = () => {
+    const limites = {
+      nome: 255,
+      email: 255,
+      telefone: 20,
+      sobreMim: 500,
+      cep: 10,
+      rua: 100,
+      numero: 10,
+      cidade: 50,
+      estado: 2,
+    };
+
+    for (const key in limites) {
+      if ((formData as any)[key].length > (limites as any)[key]) {
+        toast({
+          title: "Limite de caracteres excedido",
+          description: `O campo "${key}" não pode exceder ${
+            (limites as any)[key]
+          } caracteres.`,
+        });
+        return;
+      }
+    }
+
+    update.mutate(formData, {
+      onSuccess: () => navigate(`/prestador/${prestadorId}`),
+    });
+  };
+
+  if (isLoading) return <p className="p-4">Carregando...</p>;
+
+  const renderCounter = (value: string, limit: number) => (
+    <p
+      className={`text-sm mt-1 ${
+        value.length >= limit * 0.9 ? "text-red-500" : "text-muted-foreground"
+      }`}
+    >
+      {value.length} / {limit}
+    </p>
+  );
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <button
           onClick={() => navigate(-1)}
@@ -53,30 +144,43 @@ const EditarInformacoes = () => {
           </h2>
 
           <div className="space-y-6">
+            {/* Nome */}
             <div>
               <Label htmlFor="nome">Nome completo</Label>
               <Input
                 id="nome"
                 value={formData.nome}
-                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, nome: e.target.value })
+                }
                 className="mt-2"
+                maxLength={100}
               />
+              {renderCounter(formData.nome, 255)}
             </div>
 
+            {/* Data nascimento e sexo */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="dataNascimento">Data de nascimento</Label>
+                <Label>Data de nascimento</Label>
                 <Input
-                  id="dataNascimento"
+                  type="date"
                   value={formData.dataNascimento}
-                  onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, dataNascimento: e.target.value })
+                  }
                   className="mt-2"
                 />
               </div>
 
               <div>
-                <Label htmlFor="sexo">Sexo</Label>
-                <Select value={formData.sexo} onValueChange={(value) => setFormData({ ...formData, sexo: value })}>
+                <Label>Sexo</Label>
+                <Select
+                  value={formData.sexo}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, sexo: value })
+                  }
+                >
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
@@ -89,93 +193,126 @@ const EditarInformacoes = () => {
               </div>
             </div>
 
+            {/* Email */}
             <div>
-              <Label htmlFor="email">E-mail</Label>
+              <Label>Email</Label>
               <Input
-                id="email"
-                type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 className="mt-2"
+                maxLength={100}
               />
+              {renderCounter(formData.email, 255)}
             </div>
 
+            {/* Telefone */}
             <div>
-              <Label htmlFor="telefone">Telefone</Label>
+              <Label>Telefone</Label>
               <Input
-                id="telefone"
                 value={formData.telefone}
-                onChange={(e) => setFormData({ ...formData, telefone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, telefone: e.target.value })
+                }
                 className="mt-2"
+                maxLength={20}
               />
+              {renderCounter(formData.telefone, 20)}
             </div>
 
+            {/* Sobre mim */}
             <div>
-              <Label htmlFor="sobreMim">Sobre mim</Label>
+              <Label>Sobre mim</Label>
               <Textarea
-                id="sobreMim"
                 value={formData.sobreMim}
-                onChange={(e) => setFormData({ ...formData, sobreMim: e.target.value })}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length <= 500) {
+                    setFormData({ ...formData, sobreMim: value });
+                  }
+                }}
                 className="mt-2 min-h-32"
               />
+              <p className="text-sm text-muted-foreground mt-1">
+                {formData.sobreMim.length}
+              </p>
+              {renderCounter(formData.sobreMim, 500)}
             </div>
 
-            <h3 className="text-lg font-semibold text-foreground pt-4">Endereço</h3>
+            {/* Endereço */}
+            <h3 className="text-lg font-semibold pt-4">Endereço</h3>
 
             <div>
-              <Label htmlFor="cep">CEP</Label>
+              <Label>CEP</Label>
               <Input
-                id="cep"
                 value={formData.cep}
-                onChange={(e) => setFormData({ ...formData, cep: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, cep: e.target.value })
+                }
                 className="mt-2"
+                maxLength={10}
               />
+              {renderCounter(formData.cep, 10)}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-2">
-                <Label htmlFor="rua">Rua</Label>
+                <Label>Rua</Label>
                 <Input
-                  id="rua"
                   value={formData.rua}
-                  onChange={(e) => setFormData({ ...formData, rua: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, rua: e.target.value })
+                  }
                   className="mt-2"
+                  maxLength={100}
                 />
+                {renderCounter(formData.rua, 100)}
               </div>
 
               <div>
-                <Label htmlFor="numero">Número</Label>
+                <Label>Número</Label>
                 <Input
-                  id="numero"
                   value={formData.numero}
-                  onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, numero: e.target.value })
+                  }
                   className="mt-2"
+                  maxLength={10}
                 />
+                {renderCounter(formData.numero, 10)}
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="cidade">Cidade</Label>
+                <Label>Cidade</Label>
                 <Input
-                  id="cidade"
                   value={formData.cidade}
-                  onChange={(e) => setFormData({ ...formData, cidade: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, cidade: e.target.value })
+                  }
                   className="mt-2"
+                  maxLength={50}
                 />
+                {renderCounter(formData.cidade, 50)}
               </div>
 
               <div>
-                <Label htmlFor="estado">Estado</Label>
+                <Label>Estado</Label>
                 <Input
-                  id="estado"
                   value={formData.estado}
-                  onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, estado: e.target.value })
+                  }
                   className="mt-2"
+                  maxLength={2}
                 />
+                {renderCounter(formData.estado, 2)}
               </div>
             </div>
 
+            {/* Botões */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button
                 variant="outline"
@@ -186,7 +323,7 @@ const EditarInformacoes = () => {
               </Button>
               <Button
                 className="flex-1 bg-aproximei-blue hover:bg-aproximei-blue/90"
-                onClick={() => navigate("/prestador/1")}
+                onClick={handleSave}
               >
                 Salvar
               </Button>
