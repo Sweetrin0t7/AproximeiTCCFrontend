@@ -5,13 +5,15 @@ import {
   updateFotoPerfil,
   deleteFotoPerfil,
   PrestadorDTO,
+  updatePrestador,
+  PrestadorUpdateDTO,
 } from "@/api/services/prestador";
 
 export function usePrestador(id: number) {
   return useQuery<PrestadorDTO>({
     queryKey: ["prestador", id],
     queryFn: () => getPrestador(id),
-    enabled: !!id,
+    enabled: !!id && id > 0,
   });
 }
 
@@ -41,4 +43,17 @@ export function useUpdateFotoPerfil(idPrestador: number) {
   });
 
   return { upload, remove };
+}
+
+export function useUpdatePrestador(id: number) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: Partial<PrestadorUpdateDTO>) =>
+      updatePrestador(id, body),
+
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["prestador", id] });
+    },
+  });
 }

@@ -52,6 +52,13 @@ const EditarServicos = () => {
     tipoServicoId: null as number | null,
   });
 
+  const palavrasChaveArray = formData.palavrasChave
+  .split(",")            
+  .map(p => p.trim())
+  .filter(p => p.length > 0) 
+  .map(p => ({ palavra: p }));
+
+
   useEffect(() => {
     if (servicos && servicos.length > 0 && !selectedServiceId) {
       setSelectedServiceId(servicos[0].id.toString());
@@ -67,7 +74,9 @@ const EditarServicos = () => {
         setFormData({
           nome: servico.nome,
           sobre: servico.sobre,
-          palavrasChave: servico.palavrasChave,
+          palavrasChave: Array.isArray(servico.palavrasChave)
+            ? servico.palavrasChave.map((p: any) => p.palavra).join(",")
+            : servico.palavrasChave ?? "",
           tipoServicoId: null,
         });
         setSelectedCategoriaId(null);
@@ -113,7 +122,7 @@ const EditarServicos = () => {
         await createServico.mutateAsync({
           nome: formData.nome,
           sobre: formData.sobre,
-          palavrasChave: formData.palavrasChave,
+          palavrasChave: palavrasChaveArray,
           prestadorId: PRESTADOR_ID,
           categoriaId: selectedCategoriaId,
           categoriaServicoId: formData.tipoServicoId,
@@ -127,9 +136,10 @@ const EditarServicos = () => {
           data: {
             nome: formData.nome,
             sobre: formData.sobre,
-            palavrasChave: formData.palavrasChave,
+            palavrasChave: palavrasChaveArray,
           },
         });
+
 
         toast.success("Serviço atualizado com sucesso!");
       }
@@ -364,25 +374,38 @@ const EditarServicos = () => {
               <Textarea
                 id="sobre"
                 value={formData.sobre}
+                maxLength={500} // limite
                 onChange={(e) =>
-                  setFormData({ ...formData, sobre: e.target.value })
+                  setFormData({
+                    ...formData,
+                    sobre: e.target.value.slice(0, 500), 
+                  })
                 }
                 className="mt-2 min-h-32"
                 placeholder="Descreva seu serviço, experiência e diferenciais..."
               />
+              <p className="text-sm text-muted-foreground mt-1">
+                {formData.sobre.length} / 500 caracteres
+              </p>
             </div>
 
             <div>
-              <Label htmlFor="palavrasChave">Palavras-chave</Label>
+              <Label htmlFor="palavrasChave">Palavras-chave</Label>             
               <Input
                 id="palavrasChave"
                 value={formData.palavrasChave}
-                onChange={(e) =>
-                  setFormData({ ...formData, palavrasChave: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, palavrasChave: e.target.value });
+                }}
                 className="mt-2"
                 placeholder="Separe por vírgulas"
               />
+              <p className="text-sm text-muted-foreground mt-1">
+                {formData.palavrasChave
+                  .split(",")
+                  .filter((p) => p.trim().length > 0).length}{" "}
+                / 10 palavras (máx. 50 caracteres cada)
+              </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">

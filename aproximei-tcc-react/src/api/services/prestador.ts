@@ -6,6 +6,11 @@ export interface FotoDTO {
   imagemBase64: string;
 }
 
+export interface PalavraChaveDTO {
+  id?: number;
+  palavra: string;
+}
+
 export interface AvaliacaoDTO {
   id: number;
   nomeCliente: string;
@@ -15,6 +20,7 @@ export interface AvaliacaoDTO {
 }
 
 export interface ServicoDTO {
+  palavrasChave: PalavraChaveDTO[];
   id: number;
   nome: string;
   descricao: string;
@@ -26,15 +32,26 @@ export interface ServicoDTO {
 export interface PrestadorDTO {
   id: number;
   nomeUsuario: string;
-  endereco: string;
+  email: string;
+  telefone: string;
+
+  dataNascimento: Date;
+  sexo: string;
+
   sobreMim: string;
 
-  mediaNota: number;
+  cep: string;
+  rua: string;
+  numero: string;
+  cidade: string;
+  estado: string;
+
   latitude: number;
   longitude: number;
 
   fotoPerfil: string | null;
 
+  mediaNota: number;
   distanciaKm: number;
   maxDistance: number;
 
@@ -42,6 +59,24 @@ export interface PrestadorDTO {
   fotos: FotoDTO[];
   avaliacoes: AvaliacaoDTO[];
 }
+
+
+export type PrestadorUpdateDTO = {
+  id: number;
+  nome: string;
+  dataNascimento: string;
+  sexo: string;
+  email: string;
+  telefone: string;
+  sobreMim: string;
+  cep: string;
+  rua: string;
+  numero: string;
+  cidade: string;
+  estado: string;
+  latitude?: number;
+  longitude?: number;
+};
 
 export async function getPrestador(id: number): Promise<PrestadorDTO> {
   const response = await api.get(`/prestadores/${id}`);
@@ -62,4 +97,12 @@ export async function updateFotoPerfil(
 
 export async function deleteFotoPerfil(idPrestador: number): Promise<void> {
   await api.delete(`/prestadores/${idPrestador}/foto-perfil`);
+}
+
+export async function updatePrestador(
+  id: number,
+  body: Partial<PrestadorUpdateDTO>
+): Promise<PrestadorUpdateDTO> {
+  const { data } = await api.put(`/prestadores/${id}`, body);
+  return data;
 }

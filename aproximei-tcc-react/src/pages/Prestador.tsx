@@ -308,7 +308,10 @@ const Prestador = () => {
                 </p>
                 <p>
                   <span className="font-medium">Endereço:</span>{" "}
-                  {prestador.endereco}
+                  {prestador.rua && prestador.numero
+                    ? `${prestador.rua}, ${prestador.numero} - ${prestador.cidade} / ${prestador.cep} `
+                    : "Não informado"
+                  }
                 </p>
                 <p>
                   <span className="font-medium">Sobre mim:</span>{" "}
@@ -358,27 +361,23 @@ const Prestador = () => {
                   </TabsList>
 
                   {prestador.servicos.map((s) => (
-                    <TabsContent
-                      key={s.id}
-                      value={s.id.toString()}
-                      className="mt-4 space-y-3"
-                    >
+                    <TabsContent key={s.id} value={s.id.toString()} className="mt-4 space-y-3">
                       <p className="text-sm text-foreground">
-                        <span className="font-medium">Sobre o serviço:</span>{" "}
-                        {s.descricao}
+                        <span className="font-medium">Sobre o serviço:</span> {s.descricao}
                       </p>
-
                       <p className="text-sm text-foreground">
-                        <span className="font-medium">Categoria:</span>{" "}
-                        {s.categoria ?? "Não informado"}
+                        <span className="font-medium">Categoria:</span> {s.categoria ?? "Não informado"}
                       </p>
-
                       <p className="text-sm text-foreground">
-                        <span className="font-medium">Tipo de serviço:</span>{" "}
-                        {s.tipoServico ?? "Não informado"}
+                        <span className="font-medium">Tipo de serviço:</span> {s.tipoServico ?? "Não informado"}
+                      </p>
+                      <p className="text-sm text-foreground">
+                        <span className="font-medium">Palavras-chave:</span>{" "}
+                        {s.palavrasChave?.map(pc => pc.palavra).join(", ") || "Não informado"}
                       </p>
                     </TabsContent>
                   ))}
+
                 </Tabs>
               )}
             </div>

@@ -14,14 +14,15 @@ export function useServicos(prestadorId: number) {
     enabled: !!prestadorId,
   });
 }
-
 export function useCreateServico(prestadorId: number) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (novoServico: Omit<ServicoDTO, "id">) =>
       createServico(prestadorId, novoServico),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["servicos", prestadorId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["servicos", prestadorId] });
+      qc.invalidateQueries({ queryKey: ["prestador", prestadorId] });
+    },
   });
 }
 
@@ -30,8 +31,10 @@ export function useUpdateServico(prestadorId: number) {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<ServicoDTO> }) =>
       updateServico(id, data),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["servicos", prestadorId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["servicos", prestadorId] });
+      qc.invalidateQueries({ queryKey: ["prestador", prestadorId] });
+    },
   });
 }
 
@@ -39,7 +42,10 @@ export function useDeleteServico(prestadorId: number) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (idServico: number) => deleteServico(idServico),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["servicos", prestadorId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["servicos", prestadorId] });
+      qc.invalidateQueries({ queryKey: ["prestador", prestadorId] });
+    },
   });
 }
+
