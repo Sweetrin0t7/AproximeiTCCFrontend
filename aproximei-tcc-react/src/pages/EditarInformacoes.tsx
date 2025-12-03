@@ -94,12 +94,11 @@ const EditarInformacoes = () => {
     };
 
     for (const key in limites) {
-      if ((formData as any)[key].length > (limites as any)[key]) {
+      const value = (formData as any)[key];
+      if (typeof value === "string" && value.length > (limites as any)[key]) {
         toast({
           title: "Limite de caracteres excedido",
-          description: `O campo "${key}" não pode exceder ${
-            (limites as any)[key]
-          } caracteres.`,
+          description: `O campo "${key}" não pode exceder ${(limites as any)[key]} caracteres.`,
         });
         return;
       }
