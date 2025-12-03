@@ -233,9 +233,6 @@ const EditarInformacoes = () => {
                 }}
                 className="mt-2 min-h-32"
               />
-              <p className="text-sm text-muted-foreground mt-1">
-                {formData.sobreMim.length}
-              </p>
               {renderCounter(formData.sobreMim, 500)}
             </div>
 
