@@ -82,8 +82,8 @@ const EditarInformacoes = () => {
 
   const handleSave = () => {
     const limites = {
-      nome: 255,
-      email: 255,
+      nome: 100,
+      email: 100,
       telefone: 20,
       sobreMim: 500,
       cep: 10,
@@ -111,13 +111,13 @@ const EditarInformacoes = () => {
 
   if (isLoading) return <p className="p-4">Carregando...</p>;
 
-  const renderCounter = (value: string, limit: number) => (
+  const renderCounter = (value: string | null | undefined, limit: number) => (
     <p
       className={`text-sm mt-1 ${
-        value.length >= limit * 0.9 ? "text-red-500" : "text-muted-foreground"
+        (value?.length ?? 0) >= limit * 0.9 ? "text-red-500" : "text-muted-foreground"
       }`}
     >
-      {value.length} / {limit}
+      {(value?.length ?? 0)} / {limit}
     </p>
   );
 
