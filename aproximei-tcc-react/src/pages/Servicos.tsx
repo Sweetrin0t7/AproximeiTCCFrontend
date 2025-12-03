@@ -192,6 +192,7 @@ useEffect(() => {
               key={p.id}
               id={p.id}
               name={p.nomeUsuario}
+              image={p.fotoPerfil}
               rating={p.mediaNota}
               distance={
                 p.distanciaKm !== null
