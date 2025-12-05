@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import FiltroSelect from "@/components/Filtro";
 import { useBuscaPrestadores } from "@/hooks/useHome";
+import { Button } from "@/components/ui/button"; 
+import { toast } from "sonner"; 
 
 const Servicos = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,12 +26,16 @@ const Servicos = () => {
   });
 
   const [maxDistance, setMaxDistance] = useState<number>(0);
+  
+  const [shouldFetch, setShouldFetch] = useState(!!palavraParam); 
+  
+  const [selectKey, setSelectKey] = useState(0); 
 
   const [location, setLocation] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
-
+  
   useEffect(() => {
     if (!("geolocation" in navigator)) {
       console.warn("Geolocalização não disponível neste navegador.");
@@ -63,38 +69,83 @@ const Servicos = () => {
     data: prestadores,
     isLoading,
     error,
-  } = useBuscaPrestadores({
-    palavra: filtros.searchText || undefined,
-    servicoId: filtros.servicoId,
-    categoriaId: filtros.categoriaId,
-    avaliacaoMin: filtros.avaliacaoMin,
-    latitude: location?.latitude,
-    longitude: location?.longitude,
-    maxDistance: maxDistance > 0 ? maxDistance : undefined,
-  });
+  } = useBuscaPrestadores(
+    {
+      palavra: filtros.searchText || undefined,
+      servicoId: filtros.servicoId,
+      categoriaId: filtros.categoriaId,
+      avaliacaoMin: filtros.avaliacaoMin,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      maxDistance: maxDistance > 0 ? maxDistance : undefined,
+    },
+    shouldFetch
+  );
 
   const handleSearch = () => {
-    setSearchParams({
-      ...(filtros.searchText.trim() && { palavra: filtros.searchText.trim() }),
-      ...(filtros.servicoId && { servicoId: String(filtros.servicoId) }),
-      ...(filtros.categoriaId && { categoriaId: String(filtros.categoriaId) }),
-      ...(filtros.avaliacaoMin && {
-        avaliacaoMin: String(filtros.avaliacaoMin),
-      }),
-    });
+    const isSearchText = filtros.searchText.trim().length > 0;
+    
+    if (!isSearchText) {
+      toast.error("Você deve digitar um termo de busca para realizar a pesquisa.");
+      return; 
+    }
+
+    setShouldFetch(true); 
+
+    const newParams: Record<string, string> = {};
+    newParams.palavra = filtros.searchText.trim(); 
+    
+    if (filtros.servicoId) newParams.servicoId = String(filtros.servicoId);
+    if (filtros.categoriaId) newParams.categoriaId = String(filtros.categoriaId);
+    if (filtros.avaliacaoMin)
+      newParams.avaliacaoMin = String(filtros.avaliacaoMin);
+
+    setSearchParams(newParams);
   };
 
   const handleSearchTextChange = (text: string) => {
-    setFiltros({ ...filtros, searchText: text });
+    setFiltros((prev) => ({ ...prev, searchText: text }));
+    
+    if (!text.trim()) {
+      setShouldFetch(false);
+      
+      const currentParams = Object.fromEntries(searchParams.entries());
+      if (currentParams.palavra) {
+          delete currentParams.palavra;
+          setSearchParams(currentParams, { replace: true });
+      }
+    }
   };
 
-useEffect(() => {
+  const handleClearFilters = () => {
+    setFiltros({
+      searchText: "",
+      servicoId: undefined,
+      categoriaId: undefined,
+      avaliacaoMin: undefined,
+    });
+    setMaxDistance(0);
+    setSearchParams({});
+    setShouldFetch(false);
+    setSelectKey((prev) => prev + 1); 
+  };
+
+  useEffect(() => {
+    const isFetching = !!palavraParam || !!servicoParam || !!categoriaParam || !!avaliacaoParam;
+    
     setFiltros({
       searchText: palavraParam,
       servicoId: servicoParam ? Number(servicoParam) : undefined,
       categoriaId: categoriaParam ? Number(categoriaParam) : undefined,
       avaliacaoMin: avaliacaoParam ? Number(avaliacaoParam) : undefined,
     });
+    
+    setShouldFetch(!!palavraParam);
+
+    if (!palavraParam && (servicoParam || categoriaParam || avaliacaoParam)) {
+        setShouldFetch(false);
+    }
+    
   }, [palavraParam, servicoParam, categoriaParam, avaliacaoParam]);
 
   const handleFilterChange = (
@@ -108,21 +159,17 @@ useEffect(() => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* REUTILIZAÇÃO DO COMPONENTE DE BUSCA */}
       <SearchHero
         searchText={filtros.searchText}
         onSearchTextChange={handleSearchTextChange}
         onSearch={handleSearch}
       />
 
-      {/* Conteúdo (o resto da página) */}
       <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
-        {/* Sidebar */}
         <aside className="w-full md:w-64 shrink-0">
           <div className="bg-card border border-border rounded-lg p-6 sticky top-24 space-y-6">
             <h2 className="text-lg font-bold mb-6">Filtros</h2>
 
-            {/* Distância */}
             <div>
               <Label className="text-sm font-semibold mb-3 block">
                 Distância Máxima: {maxDistance} km
@@ -141,8 +188,8 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Filtros reutilizáveis */}
             <FiltroSelect
+              key={`servico-${selectKey}`} 
               label="Serviço"
               value={filtros.servicoId}
               options={servicos || []}
@@ -151,6 +198,7 @@ useEffect(() => {
             />
 
             <FiltroSelect
+              key={`categoria-${selectKey}`}
               label="Categoria"
               value={filtros.categoriaId}
               options={categorias || []}
@@ -159,6 +207,7 @@ useEffect(() => {
             />
 
             <FiltroSelect
+              key={`avaliacao-${selectKey}`}
               label="Avaliação"
               value={filtros.avaliacaoMin}
               options={avaliacaoOptions.map((a) => ({
@@ -168,14 +217,27 @@ useEffect(() => {
               placeholder="Todas"
               onChange={(v) => handleFilterChange("avaliacaoMin", v)}
             />
+
+            <Button
+              variant="outline"
+              className="w-full mt-4"
+              onClick={handleClearFilters}
+            >
+              Limpar Filtros
+            </Button>
           </div>
         </aside>
 
-        {/* Resultados */}
         <div className="flex-1 space-y-4">
           {isLoading && <p>Carregando prestadores...</p>}
           {error && (
             <p className="text-red-500">Erro ao carregar: {error.message}</p>
+          )}
+
+          {!shouldFetch && (
+            <div className="p-4 rounded-lg">
+              Digite um termo de busca e clique em Buscar para ver os resultados.
+            </div>
           )}
 
           {!location && !filtros.searchText && !filtros.servicoId && (
@@ -184,10 +246,12 @@ useEffect(() => {
               próximos.
             </div>
           )}
-          {prestadores?.length === 0 && !isLoading && (
+
+          {shouldFetch && prestadores?.length === 0 && !isLoading && (
             <p>Nenhum prestador encontrado.</p>
           )}
-          {prestadores?.map((p) => (
+
+          {(shouldFetch || isLoading) && prestadores?.map((p) => (
             <ProviderCard
               key={p.id}
               id={p.id}

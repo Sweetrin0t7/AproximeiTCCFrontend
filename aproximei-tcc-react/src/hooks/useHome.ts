@@ -26,51 +26,14 @@ export function useMelhoresPrestadores() {
 /**
  * Hook para realizar a busca de prestadores com base em diversos parâmetros.
  */
-export const useBuscaPrestadores = (params: BuscaParams) => {
-  const [debouncedParams, setDebouncedParams] = useState(params);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedParams(params);
-    }, 2000);
-
-    return () => clearTimeout(handler);
-  }, [params]);
-
-  const enabled =
-    !!debouncedParams.palavra ||
-    !!debouncedParams.servicoId ||
-    !!debouncedParams.categoriaId ||
-    !!debouncedParams.avaliacaoMin ||
-    (!!debouncedParams.latitude && !!debouncedParams.longitude);
-
-  const stableParams = useMemo(
-    () => ({
-      palavra: debouncedParams.palavra,
-      servicoId: debouncedParams.servicoId,
-      categoriaId: debouncedParams.categoriaId,
-      avaliacaoMin: debouncedParams.avaliacaoMin,
-      latitude: debouncedParams.latitude,
-      longitude: debouncedParams.longitude,
-    }),
-    [
-      debouncedParams.palavra,
-      debouncedParams.servicoId,
-      debouncedParams.categoriaId,
-      debouncedParams.avaliacaoMin,
-      debouncedParams.latitude,
-      debouncedParams.longitude,
-    ]
-  );
-
+export const useBuscaPrestadores = (params: BuscaParams, enabled: boolean) => {
   return useQuery<Prestador[], Error>({
-    queryKey: ["prestadores", stableParams],
-    queryFn: () => buscarPrestadores(stableParams),
+    queryKey: ["prestadores", params],
+    queryFn: () => buscarPrestadores(params),
     enabled,
     staleTime: 1000 * 60 * 10,
   });
 };
-
 
 /**
  * Hook para buscar a lista de categorias mais acessadas para a página Home.
