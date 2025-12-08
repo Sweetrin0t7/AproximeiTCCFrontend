@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Star } from "lucide-react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -14,20 +14,49 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
+import { useAvaliacaoCliente, useEnviarAvaliacao } from "@/hooks/useLinkAvaliacao";
 
 const AvaliacaoCliente = () => {
   const navigate = useNavigate();
+  const { token } = useParams<{ token: string }>();
   const [rating, setRating] = useState(5);
-  const [formData, setFormData] = useState({
-    nomePrestador: "Diego Brandão",
-    servico: "",
-    comentario: "",
-  });
+  const [formData, setFormData] = useState({ servico: "", comentario: "" });
+
+  const tokenValido = !!token;
+
+  const { data: avaliacaoData, isLoading, isError } = useAvaliacaoCliente(token || "");
+  const enviarMutation = useEnviarAvaliacao(token || "");
+
+  const handleSubmit = async () => {
+    if (!formData.servico) {
+      toast.error("Selecione o serviço avaliado");
+      return;
+    }
+
+    try {
+      await enviarMutation.mutateAsync({
+        servicoId: formData.servico,
+        comentario: formData.comentario,
+        nota: rating,
+      });
+
+      toast.success("Avaliação enviada com sucesso!");
+      navigate("/");
+    } catch {
+      toast.error("Erro ao enviar avaliação. Tente novamente.");
+    }
+  };
+
+  if (!tokenValido || isLoading) {
+    return <div className="p-8 text-center">Carregando...</div>;
+  }
+
+  if (!avaliacaoData) return null; 
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <button
           onClick={() => navigate(-1)}
@@ -38,51 +67,67 @@ const AvaliacaoCliente = () => {
         </button>
 
         <div className="bg-card border border-border rounded-lg p-6 md:p-8">
-          <h1 className="text-3xl font-bold text-center text-foreground mb-2">
-            Avaliação
-          </h1>
-          <p className="text-center text-muted-foreground mb-8">
-            Sua opinião é muito importante para nós!
-            <br />
-            Avalie o serviço prestado e nos ajude a melhorar cada vez mais.
-          </p>
-
-          <div className="flex justify-center mb-8">
-            <div className="flex flex-col items-center gap-3">
-              <Avatar className="h-24 w-24">
-                <AvatarImage
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400"
-                  alt={formData.nomePrestador}
-                />
-                <AvatarFallback className="bg-aproximei-blue text-white text-2xl">
-                  DB
-                </AvatarFallback>
+          <div className="flex justify-end mb-6">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12">
+                {avaliacaoData.prestadorAvatar ? (
+                  <AvatarImage
+                    src={avaliacaoData.prestadorAvatar}
+                    alt={avaliacaoData.prestadorNome}
+                  />
+                ) : (
+                  <AvatarFallback className="bg-aproximei-blue text-white">
+                    {avaliacaoData.prestadorNome
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .slice(0, 2)}
+                  </AvatarFallback>
+                )}
               </Avatar>
-              <div className="text-center">
-                <h3 className="font-semibold text-foreground">
-                  {formData.nomePrestador}
+              <div className="text-right">
+                <h3 className="font-semibold text-foreground text-sm">
+                  {avaliacaoData.prestadorNome}
                 </h3>
-                <div className="flex items-center gap-1 mt-1">
-                  <Star className="h-4 w-4 fill-aproximei-orange text-aproximei-orange" />
-                  <span className="text-sm text-muted-foreground">4.0</span>
-                </div>
+                {avaliacaoData.prestadorRating && (
+                  <div className="flex items-center gap-1 justify-end">
+                    <Star className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">
+                      {avaliacaoData.prestadorRating}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
+          <h1 className="text-3xl font-bold text-center text-foreground mb-2">
+            Avaliação
+          </h1>
+          <p className="text-center text-muted-foreground mb-8 text-sm">
+            Sua opinião é muito importante para nós!
+          </p>
+
           <div className="space-y-6">
             <div>
-              <Label htmlFor="nomePrestador">Nome do prestador</Label>
+              <Label
+                htmlFor="nomePrestador"
+                className="text-muted-foreground text-sm"
+              >
+                Nome do prestador
+              </Label>
               <Input
                 id="nomePrestador"
-                value={formData.nomePrestador}
+                value={avaliacaoData.prestadorNome}
                 readOnly
-                className="mt-2 bg-muted"
+                className="mt-2 bg-muted/50"
               />
             </div>
 
             <div>
-              <Label htmlFor="servico">Avaliação do Serviço:</Label>
+              <Label htmlFor="servico" className="text-muted-foreground text-sm">
+                Avaliação do Serviço:
+              </Label>
               <Select
                 value={formData.servico}
                 onValueChange={(value) =>
@@ -93,52 +138,57 @@ const AvaliacaoCliente = () => {
                   <SelectValue placeholder="Selecione o serviço" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pedreiro">Pedreiro</SelectItem>
-                  <SelectItem value="pintor">Pintor</SelectItem>
-                  <SelectItem value="eletricista">Eletricista</SelectItem>
-                  <SelectItem value="encanador">Encanador</SelectItem>
+                  {avaliacaoData.servicos.map((s) => (
+                    <SelectItem key={s.id} value={s.id.toString()}>
+                      {s.nome}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label htmlFor="comentario">Comentário</Label>
+              <Label htmlFor="comentario" className="text-muted-foreground text-sm">
+                Comentário
+              </Label>
               <Textarea
                 id="comentario"
                 value={formData.comentario}
                 onChange={(e) =>
                   setFormData({ ...formData, comentario: e.target.value })
                 }
-                className="mt-2 min-h-32"
-                placeholder="Adorei o serviço, nota 1000! Super recomendo!"
+                className="mt-2 min-h-24"
+                placeholder="Escreva sua avaliação..."
               />
             </div>
 
             <div>
-              <Label className="mb-3 block">Avaliação</Label>
-              <div className="flex gap-2 justify-center">
+              <Label className="mb-3 block text-muted-foreground text-sm">
+                Avaliação
+              </Label>
+              <div className="flex gap-2">
                 {[5, 4, 3, 2, 1].map((star) => (
                   <Button
                     key={star}
                     type="button"
                     variant={rating === star ? "default" : "outline"}
-                    size="lg"
+                    size="sm"
                     onClick={() => setRating(star)}
-                    className={`min-w-20 ${
+                    className={`flex-1 ${
                       rating === star
                         ? "bg-aproximei-blue hover:bg-aproximei-blue/90"
-                        : ""
+                        : "hover:bg-muted"
                     }`}
                   >
-                    {star} <Star className="ml-1 h-4 w-4" />
+                    {star} <Star className="ml-1 h-3 w-3" />
                   </Button>
                 ))}
               </div>
             </div>
 
             <Button
-              className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90"
-              disabled={!formData.servico}
+              className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90 mt-4"
+              onClick={handleSubmit}
             >
               Avaliar
             </Button>

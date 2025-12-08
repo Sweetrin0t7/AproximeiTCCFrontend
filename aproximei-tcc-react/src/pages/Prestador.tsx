@@ -21,7 +21,9 @@ import { usePrestador, useUpdateFotoPerfil } from "@/hooks/usePrestador";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { gerarLinkWhats } from "@/utils/whats";
 import { useAuth } from "@/context/AuthContext";
+import { salvarClienteMensagem } from "@/api/services/clienteMensagem";
 
 const Prestador = () => {
   const navigate = useNavigate();
@@ -34,6 +36,14 @@ const Prestador = () => {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<string>("");
+
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
+  const [acceptNotifications, setAcceptNotifications] = useState(false);
+
+  const [showMessageModal, setShowMessageModal] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,6 +85,32 @@ const Prestador = () => {
     });
   };
 
+  const validarTelefone = (valor: string) => {
+    const somenteNumeros = valor.replace(/\D/g, "");
+
+    let formatado = "";
+    if (somenteNumeros.length <= 2) {
+      formatado = `(${somenteNumeros}`;
+    } else if (somenteNumeros.length <= 6) {
+      formatado = `(${somenteNumeros.slice(0, 2)}) ${somenteNumeros.slice(2)}`;
+    } else if (somenteNumeros.length <= 10) {
+      formatado = `(${somenteNumeros.slice(0, 2)}) ${somenteNumeros.slice(2, 6)}-${somenteNumeros.slice(6)}`;
+    } else {
+      formatado = `(${somenteNumeros.slice(0, 2)}) ${somenteNumeros.slice(2, 7)}-${somenteNumeros.slice(7, 11)}`;
+    }
+
+    setClientPhone(formatado);
+
+    if (somenteNumeros.length === 10 || somenteNumeros.length === 11) {
+      setPhoneError("");
+      setIsPhoneValid(true);
+    } else {
+      setPhoneError("Número inválido. Formato esperado: (00) 00000-0000");
+      setIsPhoneValid(false);
+    }
+  };
+
+
   const handleCloseModal = (open: boolean) => {
     setShowPhotoModal(open);
     if (!open) setUploadError(null);
@@ -91,10 +127,40 @@ const Prestador = () => {
       </div>
     );
   }
+  
+  let linkWhats = "";
+
+  try {
+    linkWhats = gerarLinkWhats(prestador.telefone, prestador.servicos?.[0]?.nome);
+  } catch (e) {
+    console.error(e);
+  }
+
 
   if (!selectedService && prestador.servicos?.length > 0) {
     setSelectedService(prestador.servicos[0].id.toString());
   }
+
+  const handleSendMessage = async () => {
+    if (!clientName.trim() || !isPhoneValid) return;
+
+    try {
+      const telefoneLimpo = clientPhone.replace(/\D/g, "");
+      
+      await salvarClienteMensagem({
+        nome: clientName,
+        telefone: telefoneLimpo,
+        notificacoes: acceptNotifications,
+      });
+
+      window.open(linkWhats, "_blank");
+
+      setShowMessageModal(false);
+    } catch (error) {
+      console.error(error);
+      setPhoneError("Erro ao enviar. Tente novamente.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -174,7 +240,7 @@ const Prestador = () => {
               {/* AÇÕES PARA USUÁRIOS QUE NÃO SÃO O DONO */}
               {!isOwner && (
                 <div className="w-full mt-6 space-y-4 ">
-                  <Dialog>
+                  <Dialog open={showMessageModal} onOpenChange={setShowMessageModal}>
                     <DialogTrigger asChild>
                       <Button className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90">
                         <MessageCircle className="mr-2 h-4 w-4" />
@@ -194,7 +260,14 @@ const Prestador = () => {
                       <div className="space-y-4 mt-4">
                         <div className="space-y-2">
                           <Label htmlFor="name">Nome</Label>
-                          <Input id="name" placeholder="Seu nome completo" />
+                          <Input
+                            id="name"
+                            placeholder="Seu nome completo"
+                            value={clientName}
+                            onChange={(e) => {
+                              setClientName(e.target.value);
+                            }}
+                          />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="phone">Número de celular</Label>
@@ -202,10 +275,20 @@ const Prestador = () => {
                             id="phone"
                             type="tel"
                             placeholder="(00) 00000-0000"
+                            value={clientPhone}
+                            onChange={(e) => validarTelefone(e.target.value)}
                           />
+
+                          {phoneError && (
+                            <p className="text-red-500 text-xs mt-1">{phoneError}</p>
+                          )}
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Checkbox id="notifications" />
+                          <Checkbox 
+                            id="notifications"
+                            checked={acceptNotifications}
+                            onCheckedChange={(v) => setAcceptNotifications(!!v)} 
+                          />
                           <label
                             htmlFor="notifications"
                             className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -213,11 +296,13 @@ const Prestador = () => {
                             Aceito receber notificações de AproximEI
                           </label>
                         </div>
-                        <DialogClose asChild>
-                          <Button className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90">
-                            Enviar mensagem
-                          </Button>
-                        </DialogClose>
+                        <Button
+                          onClick={handleSendMessage}
+                          disabled={!clientName.trim() || !isPhoneValid}
+                          className="w-full bg-aproximei-blue hover:bg-aproximei-blue/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Enviar mensagem
+                        </Button>
                       </div>
                     </DialogContent>
                   </Dialog>

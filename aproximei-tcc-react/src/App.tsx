@@ -62,7 +62,7 @@ const App = () => (
               }
             />
 
-            <Route path="/avaliar/:id" element={<AvaliacaoCliente />} />
+            <Route path="/avaliar/:token" element={<AvaliacaoCliente />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

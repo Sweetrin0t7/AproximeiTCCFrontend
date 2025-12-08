@@ -13,7 +13,9 @@ const Cadastro = () => {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [telefoneTouched, setTelefoneTouched] = useState(false);
   const [senha, setSenha] = useState("");
+  const [senhaTouched, setSenhaTouched] = useState(false);
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -22,8 +24,26 @@ const Cadastro = () => {
     if (senha !== confirmarSenha) {
       return setErro("As senhas não coincidem!");
     }
+    if (!/^\d{10,11}$/.test(telefone)) {
+      return setErro("Informe um telefone válido com DDD, somente números! Caso esteja incorreto, os clientes não conseguirão entrar em contato com você pelo WhatsApp.");
+    }
     cadastrar(nome, email, telefone, senha);
   };
+
+  const especiais = `!@#$%^&*(),.?":{}|<>`;
+
+  const validarSenha = (senha: string) => {
+    const temEspecial = /[!@#$%^&*(),.?":{}|<>]/.test(senha);
+    const tamanhoOk = senha.length >= 6;
+
+    return {
+      temEspecial,
+      tamanhoOk,
+      senhaValida: temEspecial && tamanhoOk,
+    };
+  };
+
+  const validacao = validarSenha(senha);
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,12 +98,31 @@ const Cadastro = () => {
                 <Input
                   id="telefone"
                   type="tel"
-                  placeholder="Telefone"
+                  placeholder="Ex: 51999999999"
                   value={telefone}
-                  onChange={(e) => setTelefone(e.target.value)}
+                  onChange={(e) => {
+                    setTelefone(e.target.value);
+                    setTelefoneTouched(true);
+                  }}
                   required
                 />
-              </div>
+
+                {telefoneTouched && (
+                  <div className="text-sm mt-1">
+                    {!/^\d{10,11}$/.test(telefone) && (
+                      <p className="text-red-500">
+                        • Informe o telefone junto com o DDD, somente números.
+                      </p>
+                    )}
+
+                    {!/^\d{10,11}$/.test(telefone) && (
+                      <p className="text-gray-400 text-xs mt-1">
+                        Exemplo válido: <span className="font-mono">51999999999</span>
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>  
 
               <div className="space-y-2">
                 <Label htmlFor="senha">Senha</Label>
@@ -92,9 +131,32 @@ const Cadastro = () => {
                   type="password"
                   placeholder="Senha"
                   value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
+                  onChange={(e) => {
+                    setSenha(e.target.value);
+                    setSenhaTouched(true);
+                  }}
                   required
                 />
+
+                {senhaTouched && (
+                  <div className="text-sm mt-1">
+                    {!validacao.tamanhoOk && (
+                      <p className="text-red-500">• A senha deve ter pelo menos 6 caracteres</p>
+                    )}
+
+                    {!validacao.temEspecial && (
+                      <>
+                        <p className="text-red-500">
+                          • Falta pelo menos 1 caractere especial
+                        </p>
+                        <p className="text-gray-400 text-xs mt-1">
+                          Caracteres permitidos:{" "}
+                          <span className="font-mono break-all">{especiais}</span>
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
