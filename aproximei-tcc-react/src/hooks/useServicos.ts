@@ -6,6 +6,7 @@ import {
   updateServico,
   deleteServico,
 } from "@/api/services/servico";
+import { useAuth } from "@/context/AuthContext";
 
 export function useServicos(prestadorId: number) {
   return useQuery<ServicoDTO[]>({
@@ -14,11 +15,14 @@ export function useServicos(prestadorId: number) {
     enabled: !!prestadorId,
   });
 }
+
 export function useCreateServico(prestadorId: number) {
+  const { token } = useAuth();
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: (novoServico: Omit<ServicoDTO, "id">) =>
-      createServico(prestadorId, novoServico),
+      createServico(prestadorId, novoServico, token!),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["servicos", prestadorId] });
       qc.invalidateQueries({ queryKey: ["prestador", prestadorId] });
@@ -27,10 +31,12 @@ export function useCreateServico(prestadorId: number) {
 }
 
 export function useUpdateServico(prestadorId: number) {
+  const { token } = useAuth();
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<ServicoDTO> }) =>
-      updateServico(id, data),
+      updateServico(id, data, token!),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["servicos", prestadorId] });
       qc.invalidateQueries({ queryKey: ["prestador", prestadorId] });
@@ -39,13 +45,14 @@ export function useUpdateServico(prestadorId: number) {
 }
 
 export function useDeleteServico(prestadorId: number) {
+  const { token } = useAuth();
   const qc = useQueryClient();
+
   return useMutation({
-    mutationFn: (idServico: number) => deleteServico(idServico),
+    mutationFn: (idServico: number) => deleteServico(idServico, token!),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["servicos", prestadorId] });
       qc.invalidateQueries({ queryKey: ["prestador", prestadorId] });
     },
   });
 }
-

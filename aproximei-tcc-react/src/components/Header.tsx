@@ -92,7 +92,11 @@ const Header = () => {
                   </span>
                 </Link>
 
-                <Button variant="outline" onClick={logout}>
+                <Button variant="outline" 
+                  onClick={() => {
+                    logout();
+                    window.location.reload();
+                  }}>
                   Sair
                 </Button>
               </div>

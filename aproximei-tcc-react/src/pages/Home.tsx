@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Header from "@/components/Header";
-import Logo from "@/components/Logo";
 import CategoryIcon from "@/components/CategoryIcon";
 import ProviderCard from "@/components/ProviderCard";
 
@@ -15,8 +14,7 @@ import {
   useCategoriasMaisAcessadas,
   useServicosMaisAcessados,
 } from "@/hooks/useHome";
-
-//TODO ARRUMAR ÍCONE MOCKADO PARA TODAS AS CATEGORIAS / SERVIÇOS
+import { iconsMap } from "@/utils/iconsMap";
 import { Hammer } from "lucide-react";
 
 const Home = () => {
@@ -48,13 +46,17 @@ const Home = () => {
       />
 
       <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* CATEGORIAS */}
+        {/* CATEGORIAS MAIS ACESSADAS */}
         <div className="mb-10">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl md:text-2xl font-bold">
               Categorias mais acessadas
             </h2>
-            <Button variant="link" className="text-aproximei-blue">
+            <Button
+              variant="link"
+              className="text-aproximei-blue"
+              onClick={() => navigate("/servicos")} // redireciona sem pesquisa
+            >
               Mostrar todos
             </Button>
           </div>
@@ -67,7 +69,10 @@ const Home = () => {
                 <CategoryIcon
                   key={cat.id}
                   label={cat.nome}
-                  Icon={Hammer} // 👈 ÍCONE MOCKADO
+                  Icon={iconsMap[cat.nome] || Hammer}
+                  onClick={() =>
+                    navigate(`/servicos?categoriaId=${cat.id}`)
+                  }
                 />
               ))}
 
@@ -86,7 +91,11 @@ const Home = () => {
             <h2 className="text-xl md:text-2xl font-bold">
               Serviços mais acessados
             </h2>
-            <Button variant="link" className="text-aproximei-blue">
+            <Button
+              variant="link"
+              className="text-aproximei-blue"
+              onClick={() => navigate("/servicos")}
+            >
               Mostrar todos
             </Button>
           </div>
@@ -99,15 +108,19 @@ const Home = () => {
                 <CategoryIcon
                   key={service.id}
                   label={service.nome}
-                  Icon={Hammer}
+                  Icon={iconsMap[service.nome] || Hammer}
+                  onClick={() =>
+                    navigate(`/servicos?servicoId=${service.id}`)
+                  }
                 />
               ))}
 
-            {!loadingServices && (!topServices || topServices.length === 0) && (
-              <p className="col-span-full text-muted-foreground">
-                Nenhum serviço encontrado.
-              </p>
-            )}
+            {!loadingServices &&
+              (!topServices || topServices.length === 0) && (
+                <p className="col-span-full text-muted-foreground">
+                  Nenhum serviço encontrado.
+                </p>
+              )}
           </div>
         </div>
 
