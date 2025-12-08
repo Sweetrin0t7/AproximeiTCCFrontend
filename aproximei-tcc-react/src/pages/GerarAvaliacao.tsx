@@ -39,6 +39,8 @@ const GerarAvaliacao = () => {
   const [linkCopied, setLinkCopied] = useState(false);
   const [generatedLink, setGeneratedLink] = useState("");
 
+  const { token } = useAuth();
+
   const handleTelefoneChange = (valor: string) => {
     const somenteNumeros = valor.replace(/\D/g, "");
 
@@ -76,7 +78,11 @@ const GerarAvaliacao = () => {
     try {
       const telefoneNumeros = formData.celular.replace(/\D/g, "");
       
-      const response = await api.get(`/clientes-mensagem/por-telefone/${telefoneNumeros}`);
+      const response = await api.get(`/clientes-mensagem/por-telefone/${telefoneNumeros}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const cliente: ClienteMensagemDTO = response.data;
 
       const linkData = await gerarLink({
@@ -84,8 +90,6 @@ const GerarAvaliacao = () => {
         telefone: telefoneNumeros,
         servicoId: formData.servicoId,
       });
-
-
 
       setGeneratedLink(`${window.location.origin}/avaliar/${linkData.token}`);
       setShowLinkDialog(true);
